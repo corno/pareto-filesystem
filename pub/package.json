@@ -1,0 +1,22 @@
+{
+  "devDependencies": {
+    "@types/node": "^17.0.7"
+  },
+  "author": "Corno",
+  "description": "filesystem functions for pareto",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "name": "pareto-filesystem",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corno/pareto-filesystem.git"
+  },
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "version": "0.0.1",
+  "dependencies": {
+    "pareto-runtime": "^0.17.0"
+  }
+}
