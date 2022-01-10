@@ -25,6 +25,12 @@ export type Directory = {
         $: string,
         $i: ($: string) => void
     ) => void
+    mkDir: (
+        $: string,
+        $i: {
+            callback: ($i: Directory) => void
+        }
+    ) => void
     writeFile: (
         $: {
             filePath: string

@@ -6,43 +6,6 @@ import { Directory } from "../../interface/interfaces"
 import { MkDirErrorType, ReadDirError, UnlinkErrorType, Dirent, DirentType, ReadFileError, WriteFileErrorType } from "../../interface/types"
 
 
-// function mkdir(
-//     path: string,
-//     callback: (
-//         $:
-//             | ["error", {
-//                 type: MkDirErrorType
-//             }]
-//             | ["success", {
-//             }],
-//     ) => void,
-// ) {
-//     fs.mkdir(
-//         path,
-//         { recursive: true },
-//         (err) => {
-//             if (err !== null) {
-//                 const errCode = err.code
-//                 callback(["error", {
-//                     type: ((): MkDirErrorType => {
-//                         switch (errCode) {
-//                             case "ENOENT":
-//                                 return ["no entity", {}]
-//                             // case "EISDIR":
-//                             //     return ["is directory", {}]
-//                             default: {
-//                                 console.warn(`unknown error code in mkdir: ${err.message}`)
-//                                 return ["other", { message: err.message }]
-//                             }
-//                         }
-//                     })()
-//                 }])
-//             } else {
-//                 callback(["success", {}])
-//             }
-//         }
-//     )
-// }
 
 
 
@@ -125,7 +88,6 @@ export function wrapDirectory(
                                 pr.cc($[1], ($) => {
                                     if ($.type[0] !== "no entity" || !acceptNonExistence) {
                                         onError({
-                                            operation: "unlink",
                                             path: path,
                                             error: ["unlink", $.type],
                                         })
@@ -223,9 +185,8 @@ export function wrapDirectory(
                             case "error":
                                 pr.cc($[1], ($) => {
                                     onError({
-                                        operation: "readdir",
                                         path: path,
-                                        error: ["readDir", $.type],
+                                        error: ["readdir", $.type],
                                     })
                                 })
                                 break
@@ -257,6 +218,36 @@ export function wrapDirectory(
             },
             getDirectory: ($, $i) => {
                 $i.callback(createDirectory(pr.join([contextPath, $])))
+            },
+            mkDir: ($, $i) => {
+                const path = pr.join([contextPath, $])
+                fs.mkdir(
+                    path,
+                    { recursive: true },
+                    (err) => {
+                        if (err !== null) {
+                            const errCode = err.code
+                            switch (errCode) {
+                                case "ENOENT":
+                                    onError({
+                                        path: path,
+                                        error: ["mkdir", ["no entity", {}]],
+                                    })
+                                    break
+                                // case "EISDIR":
+                                //     return ["is directory", {}]
+                                default: {
+                                    console.warn(`unknown error code in mkdir: ${err.message}`)
+                                    return ["other", { message: err.message }]
+                                }
+                            }
+                        } else {
+                            $i.callback(createDirectory(
+                                pr.join([contextPath, $])
+                            ))
+                        }
+                    }
+                )
             },
             readFile: ($, $i) => {
                 const path = pr.join([contextPath, $])
@@ -312,7 +303,6 @@ export function wrapDirectory(
                             case "error":
                                 pr.cc($[1], ($) => {
                                     onError({
-                                        operation: "readFile",
                                         path: path,
                                         error: ["readFile", $.type],
                                     })
@@ -381,7 +371,6 @@ export function wrapDirectory(
                             case "error":
                                 pr.cc($[1], ($) => {
                                     onError({
-                                        operation: "writeFile",
                                         path: path,
                                         error: ["writeFile", $.type],
                                     })
@@ -409,10 +398,4 @@ export function wrapDirectory(
     if (numberOfOpenAsyncCalls === 0) {
         $i.onEnd()
     }
-}
-
-export function printFSError(
-    $: FSError
-) {
-    return `could not '${$.operation}' @ '${$.path}' because '${$.error}'`
 }

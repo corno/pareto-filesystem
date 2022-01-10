@@ -5,12 +5,11 @@ import { UnlinkErrorType } from "./UnlinkErrorType";
 import { WriteFileErrorType } from "./WriteFileErrorType";
 
 export type FSError = {
-    operation: string
     path: string
     error:
-    | ["mkDir", MkDirErrorType]
+    | ["mkdir", MkDirErrorType]
     | ["writeFile", WriteFileErrorType]
     | ["readFile", ReadFileError]
-    | ["readDir", ReadDirError]
+    | ["readdir", ReadDirError]
     | ["unlink", UnlinkErrorType]
 }
