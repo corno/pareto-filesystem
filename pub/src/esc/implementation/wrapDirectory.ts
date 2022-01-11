@@ -3,7 +3,7 @@ import * as pr from "pareto-runtime"
 import * as fs from "fs"
 import { FSError } from "../../interface/types/FSError"
 import { Directory } from "../../interface/interfaces"
-import { MkDirErrorType, ReadDirError, UnlinkErrorType, Dirent, DirentType, ReadFileError, WriteFileErrorType } from "../../interface/types"
+import { ReadDirError, DirentType, ReadFileError, WriteFileErrorType } from "../../interface/types"
 
 
 
@@ -45,7 +45,6 @@ export function wrapDirectory(
                 (err, data) => {
                     if (err === null) {
                         callback(data)
-
                     } else {
                         const errCode = err.code
                         onError({
@@ -64,8 +63,8 @@ export function wrapDirectory(
                                 }
                             })()],
                         })
-                        decrementNumberOfOpenAsyncCalls()
                     }
+                    decrementNumberOfOpenAsyncCalls()
                 }
             )
         }
@@ -108,122 +107,81 @@ export function wrapDirectory(
                 const path = pr.join([contextPath, $.path])
 
                 incrementNumberOfOpenAsyncCalls()
-                function readdirWithFileTypes(
-                    path: string,
-                    callback: (
-                        $:
-                            | ["error", {
-                                type: ReadDirError
-                            }]
-                            | ["success", {
-                                files: Dirent[]
-                            }],
-                    ) => void,
-                ): void {
-                    fs.readdir(
-                        path,
-                        {
-                            withFileTypes: true,
-                        },
-                        (err, files) => {
-
-                            if (err === null) {
-                                callback(["success", {
-                                    files: files.map(($) => {
-                                        return {
+                fs.readdir(
+                    path,
+                    {
+                        withFileTypes: true,
+                    },
+                    (err, files) => {
+                        if (err === null) {
+                            files.forEach(($) => {
+                                const type = ((): DirentType => {
+                                    if ($.isFile()) {
+                                        return ["File", {}]
+                                    } else if ($.isDirectory()) {
+                                        return ["Directory", {}]
+                                    } else if ($.isBlockDevice()) {
+                                        return ["BlockDevice", {}]
+                                    } else if ($.isCharacterDevice()) {
+                                        return ["CharacterDevice", {}]
+                                    } else if ($.isFIFO()) {
+                                        return ["FIFO", {}]
+                                    } else if ($.isSocket()) {
+                                        return ["Socket", {}]
+                                    } else if ($.isSymbolicLink()) {
+                                        return ["Socket", {}]
+                                    } else {
+                                        throw new Error(`unexpected Dirent type`)
+                                    }
+                                })()
+                                if (type[0] === "Directory") {
+                                    $i.onDirectory(
+                                        {
                                             name: $.name,
-                                            type: ((): DirentType => {
-                                                if ($.isFile()) {
-                                                    return ["File", {}]
-                                                } else if ($.isDirectory()) {
-                                                    return ["Directory", {}]
-                                                } else if ($.isBlockDevice()) {
-                                                    return ["BlockDevice", {}]
-                                                } else if ($.isCharacterDevice()) {
-                                                    return ["CharacterDevice", {}]
-                                                } else if ($.isFIFO()) {
-                                                    return ["FIFO", {}]
-                                                } else if ($.isSocket()) {
-                                                    return ["Socket", {}]
-                                                } else if ($.isSymbolicLink()) {
-                                                    return ["Socket", {}]
-                                                } else {
-                                                    throw new Error(`unexpected Dirent type`)
-                                                }
-                                            })()
-                                        }
-                                    }),
-                                }])
-
-                            } else {
-                                const errCode = err.code
-                                callback(["error", {
-                                    type: ((): ReadDirError => {
-                                        switch (errCode) {
-                                            case "ENOENT":
-                                                return ["no entity", {}]
-                                            case "ENOTDIR":
-                                                return ["is not directory", {}]
-
-                                            default: {
-                                                console.warn(`unknown error code in readdir: ${err.message}`)
-                                                return ["other", { message: err.message }]
+                                        },
+                                        createDirectory(pr.join([path, $.name]))
+                                    )
+                                } else if (type[0] === "File") {
+                                    $i.onFile(
+                                        {
+                                            name: $.name,
+                                        },
+                                        {
+                                            read: ($i) => {
+                                                readFile(
+                                                    pr.join([path, $.name]),
+                                                    $i,
+                                                )
                                             }
                                         }
-                                    })()
-                                }])
-                            }
-                        }
-                    )
-                }
-                readdirWithFileTypes(
-                    path,
-                    ($) => {
-                        switch ($[0]) {
-                            case "error":
-                                pr.cc($[1], ($) => {
-                                    onError({
-                                        path: path,
-                                        error: ["readdir", $.type],
-                                    })
-                                })
-                                break
-                            case "success":
-                                pr.cc($[1], ($) => {
-                                    $.files.forEach(($) => {
-                                        if ($.type[0] === "Directory") {
-                                            $i.onDirectory(
-                                                {
-                                                    name: $.name,
-                                                },
-                                                createDirectory(pr.join([path, $.name]))
-                                            )
-                                        } else if ($.type[0] === "File") {
-                                            $i.onFile(
-                                                {
-                                                    name: $.name,
-                                                },
-                                                {
-                                                    read: ($i) => {
-                                                        readFile(
-                                                            pr.join([path, $.name]),
-                                                            $i,
-                                                        )
-                                                    }
-                                                }
-                                            )
-                                        } else {
-                                            throw new Error("IMPLEMENT ME")
+                                    )
+                                } else {
+                                    throw new Error("IMPLEMENT ME")
+                                }
+                            })
+                            $i.onEnd()
+
+                        } else {
+                            const errCode = err.code
+                            onError({
+                                path: path,
+                                error: ["readdir", ((): ReadDirError => {
+                                    switch (errCode) {
+                                        case "ENOENT":
+                                            return ["no entity", {}]
+                                        case "ENOTDIR":
+                                            return ["is not directory", {}]
+
+                                        default: {
+                                            console.warn(`unknown error code in readdir: ${err.message}`)
+                                            return ["other", { message: err.message }]
                                         }
-                                    })
-                                    $i.onEnd()
-                                })
-                                break
-                            default:
-                                pr.au($[0])
+                                    }
+                                })()],
+                            })
                         }
                         decrementNumberOfOpenAsyncCalls()
-                    },
+                    }
                 )
             },
             readFile: ($, $i) => {
@@ -243,93 +201,48 @@ export function wrapDirectory(
                 const acceptNonExistence = $.acceptNonExistence
                 incrementNumberOfOpenAsyncCalls()
 
-                function unlink(
-                    path: string,
-                    callback: (
-                        $:
-                            | ["error", {
-                                type: UnlinkErrorType
-                            }]
-                            | ["success", {
-                            }],
-                    ) => void,
-                ) {
-                    fs.unlink(
-                        path,
-                        (err) => {
-                            if (err !== null) {
-                                const errCode = err.code
-                                callback(["error", {
-                                    type: ((): UnlinkErrorType => {
-                                        switch (errCode) {
-                                            case "ENOENT":
-                                                return ["no entity", {}]
-                                            // case "EISDIR":
-                                            //     return ["is directory", {}]
-                                            default: {
-                                                console.warn(`unknown error code in unlink: ${err.message}`)
-                                                return ["other", { message: err.message }]
-                                            }
-                                        }
-                                    })()
-                                }])
-                            } else {
-                                callback(["success", {}])
-                            }
-
-                        }
-                    )
-                }
-                unlink(
+                fs.unlink(
                     path,
-                    ($) => {
-                        switch ($[0]) {
-                            case "error":
-                                pr.cc($[1], ($) => {
-                                    if ($.type[0] !== "no entity" || !acceptNonExistence) {
+                    (err) => {
+                        if (err !== null) {
+                            const errCode = err.code
+                            switch (errCode) {
+                                case "ENOENT":
+                                    if (!acceptNonExistence) {
                                         onError({
                                             path: path,
-                                            error: ["unlink", $.type],
+                                            error: ["unlink", ["no entity", {}]],
                                         })
                                     }
-                                })
-                                break
-                            case "success":
-                                pr.cc($[1], ($) => {
-                                    callback({})
-                                })
-                                break
-                            default:
-                                pr.au($[0])
+                                    break
+                                default: {
+                                    console.warn(`unknown error code in unlink: ${err.message}`)
+                                    onError({
+                                        path: path,
+                                        error: ["unlink", ["other", { message: err.message }]],
+                                    })
+                                }
+                            }
+                        } else {
+                            callback({})
                         }
-                        decrementNumberOfOpenAsyncCalls()
-                    },
+
+                    }
                 )
             },
             writeFile: ($, $i) => {
                 const path = pr.join([contextPath, $.filePath])
 
                 incrementNumberOfOpenAsyncCalls()
-                function writeFile(
-                    path: string,
-                    data: string,
-                    callback: (
-                        $:
-                            | ["error", {
-                                type: WriteFileErrorType
-                            }]
-                            | ["success", {
-                            }],
-                    ) => void,
-                ) {
                     fs.writeFile(
                         path,
-                        data,
+                        $.data,
                         (err) => {
                             if (err !== null) {
                                 const errCode = err.code
-                                callback(["error", {
-                                    type: ((): WriteFileErrorType => {
+                                onError({
+                                    path: path,
+                                    error: ["writeFile", ((): WriteFileErrorType => {
                                         switch (errCode) {
                                             case "ENOENT":
                                                 return ["no entity", {}]
@@ -340,39 +253,13 @@ export function wrapDirectory(
                                                 return ["other", { message: err.message }]
                                             }
                                         }
-                                    })()
-                                }])
+                                    })()],
+                                })
                             } else {
-                                callback(["success", {}])
+                                $i({})
                             }
                         }
                     )
-                }
-                writeFile(
-                    path,
-                    $.data,
-                    ($) => {
-                        switch ($[0]) {
-                            case "error":
-                                pr.cc($[1], ($) => {
-                                    onError({
-                                        path: path,
-                                        error: ["writeFile", $.type],
-                                    })
-                                })
-                                break
-                            case "success":
-                                pr.cc($[1], ($) => {
-                                    $i({})
-                                })
-                                break
-                            default:
-                                pr.au($[0])
-                        }
-                        decrementNumberOfOpenAsyncCalls()
-                    }
-
-                )
             },
         }
     }
