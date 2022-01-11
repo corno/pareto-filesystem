@@ -33,77 +33,75 @@ export function wrapDirectory(
     function createDirectory(
         contextPath: string,
     ): Directory {
-        return {
-            unlink: (
-                $,
-                callback,
-            ) => {
-                const path = pr.join([contextPath, $.path])
+        function readFile(
+            path: string,
+            callback: ($: string) => void,
+        ): void {
+            incrementNumberOfOpenAsyncCalls()
 
-                const acceptNonExistence = $.acceptNonExistence
-                incrementNumberOfOpenAsyncCalls()
+            fs.readFile(
+                path,
+                { encoding: "utf-8" },
+                (err, data) => {
+                    if (err === null) {
+                        callback(data)
 
-                function unlink(
-                    path: string,
-                    callback: (
-                        $:
-                            | ["error", {
-                                type: UnlinkErrorType
-                            }]
-                            | ["success", {
-                            }],
-                    ) => void,
-                ) {
-                    fs.unlink(
-                        path,
-                        (err) => {
-                            if (err !== null) {
-                                const errCode = err.code
-                                callback(["error", {
-                                    type: ((): UnlinkErrorType => {
-                                        switch (errCode) {
-                                            case "ENOENT":
-                                                return ["no entity", {}]
-                                            // case "EISDIR":
-                                            //     return ["is directory", {}]
-                                            default: {
-                                                console.warn(`unknown error code in unlink: ${err.message}`)
-                                                return ["other", { message: err.message }]
-                                            }
-                                        }
-                                    })()
-                                }])
-                            } else {
-                                callback(["success", {}])
-                            }
+                    } else {
+                        const errCode = err.code
+                        onError({
+                            path: path,
+                            error: ["readFile", ((): ReadFileError => {
+                                switch (errCode) {
+                                    case "ENOENT":
+                                        return ["no entity", {}]
+                                    case "EISDIR":
+                                        return ["is directory", {}]
 
-                        }
-                    )
-                }
-                unlink(
-                    path,
-                    ($) => {
-                        switch ($[0]) {
-                            case "error":
-                                pr.cc($[1], ($) => {
-                                    if ($.type[0] !== "no entity" || !acceptNonExistence) {
-                                        onError({
-                                            path: path,
-                                            error: ["unlink", $.type],
-                                        })
+                                    default: {
+                                        console.warn(`unknown error code in readFile: ${err.message}`)
+                                        return ["other", { message: err.message }]
                                     }
-                                })
-                                break
-                            case "success":
-                                pr.cc($[1], ($) => {
-                                    callback({})
-                                })
-                                break
-                            default:
-                                pr.au($[0])
-                        }
+                                }
+                            })()],
+                        })
                         decrementNumberOfOpenAsyncCalls()
-                    },
+                    }
+                }
+            )
+        }
+
+        return {
+            getDirectory: ($, $i) => {
+                $i.callback(createDirectory(pr.join([contextPath, $])))
+            },
+            mkDir: ($, $i) => {
+                const path = pr.join([contextPath, $])
+                fs.mkdir(
+                    path,
+                    { recursive: true },
+                    (err) => {
+                        if (err !== null) {
+                            const errCode = err.code
+                            switch (errCode) {
+                                case "ENOENT":
+                                    onError({
+                                        path: path,
+                                        error: ["mkdir", ["no entity", {}]],
+                                    })
+                                    break
+                                // case "EISDIR":
+                                //     return ["is directory", {}]
+                                default: {
+                                    console.warn(`unknown error code in mkdir: ${err.message}`)
+                                    return ["other", { message: err.message }]
+                                }
+                            }
+                        } else {
+                            $i.callback(createDirectory(
+                                pr.join([contextPath, $])
+                            ))
+                        }
+                    }
                 )
             },
             readDirWithFileTypes: ($, $i) => {
@@ -201,7 +199,19 @@ export function wrapDirectory(
                                                 createDirectory(pr.join([path, $.name]))
                                             )
                                         } else if ($.type[0] === "File") {
-                                            $i.onFile($.name)
+                                            $i.onFile(
+                                                {
+                                                    name: $.name,
+                                                },
+                                                {
+                                                    read: ($i) => {
+                                                        readFile(
+                                                            pr.join([path, $.name]),
+                                                            $i,
+                                                        )
+                                                    }
+                                                }
+                                            )
                                         } else {
                                             throw new Error("IMPLEMENT ME")
                                         }
@@ -216,109 +226,84 @@ export function wrapDirectory(
                     },
                 )
             },
-            getDirectory: ($, $i) => {
-                $i.callback(createDirectory(pr.join([contextPath, $])))
-            },
-            mkDir: ($, $i) => {
-                const path = pr.join([contextPath, $])
-                fs.mkdir(
-                    path,
-                    { recursive: true },
-                    (err) => {
-                        if (err !== null) {
-                            const errCode = err.code
-                            switch (errCode) {
-                                case "ENOENT":
-                                    onError({
-                                        path: path,
-                                        error: ["mkdir", ["no entity", {}]],
-                                    })
-                                    break
-                                // case "EISDIR":
-                                //     return ["is directory", {}]
-                                default: {
-                                    console.warn(`unknown error code in mkdir: ${err.message}`)
-                                    return ["other", { message: err.message }]
-                                }
-                            }
-                        } else {
-                            $i.callback(createDirectory(
-                                pr.join([contextPath, $])
-                            ))
-                        }
-                    }
-                )
-            },
             readFile: ($, $i) => {
                 const path = pr.join([contextPath, $])
+
+                readFile(
+                    path,
+                    $i
+                )
+            },
+            unlink: (
+                $,
+                callback,
+            ) => {
+                const path = pr.join([contextPath, $.path])
+
+                const acceptNonExistence = $.acceptNonExistence
                 incrementNumberOfOpenAsyncCalls()
 
-                function readFile(
+                function unlink(
                     path: string,
                     callback: (
                         $:
                             | ["error", {
-                                type: ReadFileError
+                                type: UnlinkErrorType
                             }]
                             | ["success", {
-                                data: string
                             }],
                     ) => void,
-                ): void {
-                    fs.readFile(
+                ) {
+                    fs.unlink(
                         path,
-                        { encoding: "utf-8" },
-                        (err, data) => {
-                            if (err === null) {
-                                callback(["success", {
-                                    data: data,
-                                }])
-
-                            } else {
+                        (err) => {
+                            if (err !== null) {
                                 const errCode = err.code
                                 callback(["error", {
-                                    type: ((): ReadFileError => {
+                                    type: ((): UnlinkErrorType => {
                                         switch (errCode) {
                                             case "ENOENT":
                                                 return ["no entity", {}]
-                                            case "EISDIR":
-                                                return ["is directory", {}]
-
+                                            // case "EISDIR":
+                                            //     return ["is directory", {}]
                                             default: {
-                                                console.warn(`unknown error code in readFile: ${err.message}`)
+                                                console.warn(`unknown error code in unlink: ${err.message}`)
                                                 return ["other", { message: err.message }]
                                             }
                                         }
                                     })()
                                 }])
+                            } else {
+                                callback(["success", {}])
                             }
+
                         }
                     )
                 }
-
-                readFile(
+                unlink(
                     path,
                     ($) => {
                         switch ($[0]) {
                             case "error":
                                 pr.cc($[1], ($) => {
-                                    onError({
-                                        path: path,
-                                        error: ["readFile", $.type],
-                                    })
+                                    if ($.type[0] !== "no entity" || !acceptNonExistence) {
+                                        onError({
+                                            path: path,
+                                            error: ["unlink", $.type],
+                                        })
+                                    }
                                 })
                                 break
                             case "success":
                                 pr.cc($[1], ($) => {
-                                    $i($.data)
+                                    callback({})
                                 })
                                 break
                             default:
                                 pr.au($[0])
                         }
                         decrementNumberOfOpenAsyncCalls()
-                    }
-
+                    },
                 )
             },
             writeFile: ($, $i) => {

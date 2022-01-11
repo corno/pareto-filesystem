@@ -1,16 +1,27 @@
 
+export type File = {
+    read:  (
+        $i: ($: string) => void,
+    ) => void
+}
+
 export type Directory = {
     readDirWithFileTypes: (
         $: {
             path: string,
         },
         $i: {
-            onFile: (name: string) => void
+            onFile: (
+                $: {
+                    name: string,
+                },
+                $i: File,
+            ) => void
             onDirectory: (
                 $: {
                     name: string,
                 },
-                $i: Directory
+                $i: Directory,
             ) => void
             onEnd: () => void
         }
@@ -23,7 +34,7 @@ export type Directory = {
     ) => void
     readFile: (
         $: string,
-        $i: ($: string) => void
+        $i: ($: string) => void,
     ) => void
     mkDir: (
         $: string,
