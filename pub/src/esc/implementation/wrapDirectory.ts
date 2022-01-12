@@ -5,10 +5,6 @@ import { FSError } from "../../interface/types/FSError"
 import { Directory } from "../../interface/interfaces"
 import { ReadDirError, DirentType, ReadFileError, WriteFileErrorType } from "../../interface/types"
 
-
-
-
-
 export function wrapDirectory(
     $: {
         startPath: string
@@ -21,14 +17,22 @@ export function wrapDirectory(
 ): void {
     const onError = $i.onError
     let numberOfOpenAsyncCalls = 0
+    let ended = false
+    function wrapup() {
+        if (numberOfOpenAsyncCalls === 0) {
+            ended = true
+            $i.onEnd()
+        }
+    }
     function incrementNumberOfOpenAsyncCalls() {
+        if (ended) {
+            console.error("async call done after context is ended")
+        }
         numberOfOpenAsyncCalls += 1
     }
     function decrementNumberOfOpenAsyncCalls() {
         numberOfOpenAsyncCalls -= 1
-        if (numberOfOpenAsyncCalls === 0) {
-            $i.onEnd()
-        }
+        wrapup()
     }
     function createDirectory(
         contextPath: string,
@@ -38,7 +42,6 @@ export function wrapDirectory(
             callback: ($: string) => void,
         ): void {
             incrementNumberOfOpenAsyncCalls()
-
             fs.readFile(
                 path,
                 { encoding: "utf-8" },
@@ -75,6 +78,8 @@ export function wrapDirectory(
             },
             mkDir: ($, $i) => {
                 const path = pr.join([contextPath, $])
+                incrementNumberOfOpenAsyncCalls()
+
                 fs.mkdir(
                     path,
                     { recursive: true },
@@ -100,6 +105,8 @@ export function wrapDirectory(
                                 pr.join([contextPath, $])
                             ))
                         }
+                        decrementNumberOfOpenAsyncCalls()
+
                     }
                 )
             },
@@ -200,7 +207,6 @@ export function wrapDirectory(
 
                 const acceptNonExistence = $.acceptNonExistence
                 incrementNumberOfOpenAsyncCalls()
-
                 fs.unlink(
                     path,
                     (err) => {
@@ -226,6 +232,7 @@ export function wrapDirectory(
                         } else {
                             callback({})
                         }
+                        decrementNumberOfOpenAsyncCalls()
 
                     }
                 )
@@ -234,40 +241,39 @@ export function wrapDirectory(
                 const path = pr.join([contextPath, $.filePath])
 
                 incrementNumberOfOpenAsyncCalls()
-                    fs.writeFile(
-                        path,
-                        $.data,
-                        (err) => {
-                            if (err !== null) {
-                                const errCode = err.code
-                                onError({
-                                    path: path,
-                                    error: ["writeFile", ((): WriteFileErrorType => {
-                                        switch (errCode) {
-                                            case "ENOENT":
-                                                return ["no entity", {}]
-                                            // case "EISDIR":
-                                            //     return ["is directory", {}]
-                                            default: {
-                                                console.warn(`unknown error code in writeFile: ${err.message}`)
-                                                return ["other", { message: err.message }]
-                                            }
+                fs.writeFile(
+                    path,
+                    $.data,
+                    (err) => {
+                        if (err !== null) {
+                            const errCode = err.code
+                            onError({
+                                path: path,
+                                error: ["writeFile", ((): WriteFileErrorType => {
+                                    switch (errCode) {
+                                        case "ENOENT":
+                                            return ["no entity", {}]
+                                        // case "EISDIR":
+                                        //     return ["is directory", {}]
+                                        default: {
+                                            console.warn(`unknown error code in writeFile: ${err.message}`)
+                                            return ["other", { message: err.message }]
                                         }
-                                    })()],
-                                })
-                            } else {
-                                $i({})
-                            }
+                                    }
+                                })()],
+                            })
+                        } else {
+                            $i({})
                         }
-                    )
+                        decrementNumberOfOpenAsyncCalls()
+
+                    }
+                )
             },
         }
     }
     $i.callback(createDirectory(
         $.startPath
     ))
-
-    if (numberOfOpenAsyncCalls === 0) {
-        $i.onEnd()
-    }
+    wrapup()
 }
