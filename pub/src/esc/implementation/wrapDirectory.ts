@@ -1,6 +1,7 @@
 import * as pr from "pareto-runtime"
 
 import * as fs from "fs"
+import * as pth from "path"
 import { FSError } from "../../interface/types/FSError"
 import { Directory } from "../../interface/interfaces"
 import { ReadDirError, DirentType, ReadFileError, WriteFileErrorType } from "../../interface/types"
@@ -145,6 +146,7 @@ export function wrapDirectory(
                                     $i.onDirectory(
                                         {
                                             name: $.name,
+                                            absolutePath: pth.resolve(pth.join(path, $.name)),
                                         },
                                         createDirectory(pr.join([path, $.name]))
                                     )
@@ -152,6 +154,7 @@ export function wrapDirectory(
                                     $i.onFile(
                                         {
                                             name: $.name,
+                                            absolutePath: pth.resolve(pth.join(path, $.name)),
                                         },
                                         {
                                             read: ($i) => {

@@ -14,12 +14,14 @@ export type Directory = {
             onFile: (
                 $: {
                     name: string,
+                    absolutePath: string,
                 },
                 $i: File,
             ) => void
             onDirectory: (
                 $: {
                     name: string,
+                    absolutePath: string,
                 },
                 $i: Directory,
             ) => void
