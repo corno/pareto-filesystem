@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "pareto-runtime": "^0.18.0",
-    "pareto-test": "^0.9.1"
+    "pareto-runtime": "^0.19.0",
+    "pareto-test": "^0.10.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.14"
