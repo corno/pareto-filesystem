@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test": "./buildAndTest.sh",
+    "pubMin": "./publish.sh minor",
+    "pubPatch": "./publish.sh patch",
+    "update2latest": "./update2latest.sh",
+    "update2latestAndPublishMinor": "./update2latestAndPublish.sh minor",
+    "update2latestAndPublishPath": "./update2latestAndPublish.sh patch"
+  }
+}

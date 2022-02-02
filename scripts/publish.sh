@@ -8,7 +8,7 @@ git push && \
 git diff --exit-code && \
 
 #make sure latest packages are installed
-$dir/updatePackage.sh ./pub && \
+$dir/updatePackage.sh ../pub && \
 
 #validate that everything is committed
 git diff --exit-code && \
@@ -17,12 +17,12 @@ git diff --exit-code && \
 $dir/buildAndTest.sh && \
 
 #bump version and store in variable
-pushd ./pub && \
+pushd ../pub && \
 newVersion=$(npm version "$1") && \
 popd && \
 
 #commit package.json with new version number
-git add . && \
+git add .. && \
 git commit -m "version bumped to $newVersion" && \
 
 #create a tag
@@ -30,6 +30,6 @@ git tag -a "$newVersion" -m "$newVersion" && \
 git push && \
 
 #publish
-pushd ./pub && \
+pushd ../pub && \
 npm publish && \
 popd

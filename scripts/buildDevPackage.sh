@@ -2,4 +2,4 @@
 
 scriptDir=`realpath $(dirname "$0")`
 
-$scriptDir/buildPackage.sh $(pwd)/dev
+$scriptDir/buildPackage.sh $(pwd)/../dev
