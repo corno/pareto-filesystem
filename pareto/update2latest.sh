@@ -2,8 +2,11 @@
 
 dir=`realpath $(dirname "$0")`
 
+$dir/updatePackage.sh .
 $dir/updatePackage.sh ../pub
 $dir/updatePackage.sh ../test
+
+$dir/copyTemplate.sh
 
 if [ -d "../dev" ]
 then

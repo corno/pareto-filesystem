@@ -8,7 +8,7 @@ import { ReadDirError, DirentType, ReadFileError, WriteFileErrorType } from "../
 
 export function wrapDirectory(
     $: {
-        startPath: string
+        rootDirectory: string
     },
     $i: {
         callback: ($: Directory) => void,
@@ -16,6 +16,7 @@ export function wrapDirectory(
         onEnd: () => void,
     }
 ): void {
+    const rootDir = $.rootDirectory
     const onError = $i.onError
     let numberOfOpenAsyncCalls = 0
     let ended = false
@@ -112,6 +113,7 @@ export function wrapDirectory(
                 )
             },
             readDirWithFileTypes: ($, $i) => {
+                const idStyle = $.idStyle
                 const path = pr.join([contextPath, $.path])
 
                 incrementNumberOfOpenAsyncCalls()
@@ -123,48 +125,89 @@ export function wrapDirectory(
                     (err, files) => {
                         if (err === null) {
                             files.forEach(($) => {
-                                const type = ((): DirentType => {
-                                    if ($.isFile()) {
-                                        return ["File", {}]
-                                    } else if ($.isDirectory()) {
-                                        return ["Directory", {}]
-                                    } else if ($.isBlockDevice()) {
-                                        return ["BlockDevice", {}]
-                                    } else if ($.isCharacterDevice()) {
-                                        return ["CharacterDevice", {}]
-                                    } else if ($.isFIFO()) {
-                                        return ["FIFO", {}]
-                                    } else if ($.isSocket()) {
-                                        return ["Socket", {}]
-                                    } else if ($.isSymbolicLink()) {
-                                        return ["Socket", {}]
-                                    } else {
-                                        throw new Error(`unexpected Dirent type`)
+                                const dirent = $
+                                function createID(): string {
+                                    switch (idStyle[0]) {
+                                        case "absolute":
+                                            return pr.cc(idStyle[1], ($) => {
+                                                return pth.resolve(pth.join(path, dirent.name))
+                                            })
+                                        case "name only":
+                                            return pr.cc(idStyle[1], ($) => {
+                                                return dirent.name
+                                            })
+                                        case "relative from root":
+                                            return pr.cc(idStyle[1], ($) => {
+                                                return pth.relative(rootDir, pth.resolve(pth.join(path, dirent.name)))
+                                            })
+                                        default: return pr.au(idStyle[0])
                                     }
-                                })()
-                                if (type[0] === "Directory") {
-                                    $i.onDirectory(
-                                        {
-                                            name: $.name,
-                                            absolutePath: pth.resolve(pth.join(path, $.name)),
-                                        },
-                                        createDirectory(pr.join([path, $.name]))
-                                    )
-                                } else if (type[0] === "File") {
-                                    $i.onFile(
-                                        {
-                                            name: $.name,
-                                            absolutePath: pth.resolve(pth.join(path, $.name)),
-                                        },
-                                        {
-                                            read: ($i) => {
-                                                readFile(
-                                                    pr.join([path, $.name]),
-                                                    $i,
-                                                )
+                                }
+                                if ($.isBlockDevice()) {
+                                    if ($i.callbacks.blockDevice !== undefined) {
+                                        $i.callbacks.blockDevice(
+                                            {
+                                                id: createID(),
+                                            },
+                                        )
+                                    }
+                                } else if ($.isCharacterDevice()) {
+                                    if ($i.callbacks.characterDevice !== undefined) {
+                                        $i.callbacks.characterDevice(
+                                            {
+                                                id: createID(),
+                                            },
+                                        )
+                                    }
+                                } else if ($.isDirectory()) {
+                                    if ($i.callbacks.directory !== undefined) {
+                                        $i.callbacks.directory(
+                                            {
+                                                id: createID(),
+                                            },
+                                            createDirectory(pr.join([path, $.name]))
+                                        )
+                                    }
+                                } else if ($.isFIFO()) {
+                                    if ($i.callbacks.fifo !== undefined) {
+                                        $i.callbacks.fifo(
+                                            {
+                                                id: createID(),
+                                            },
+                                        )
+                                    }
+                                } else if ($.isFile()) {
+                                    if ($i.callbacks.file !== undefined) {
+                                        $i.callbacks.file(
+                                            {
+                                                id: createID(),
+                                            },
+                                            {
+                                                read: ($i) => {
+                                                    readFile(
+                                                        pr.join([path, $.name]),
+                                                        $i,
+                                                    )
+                                                }
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
+                                } else if ($.isSocket()) {
+                                    if ($i.callbacks.socket !== undefined) {
+                                        $i.callbacks.socket(
+                                            {
+                                                id: createID(),
+                                            },
+                                        )
+                                    }
+                                } else if ($.isSymbolicLink()) {
+                                    if ($i.callbacks.symbolicLink !== undefined) {
+                                        $i.callbacks.symbolicLink(
+                                            {
+                                                id: createID(),
+                                            },
+                                        )
+                                    }
                                 } else {
                                     throw new Error("IMPLEMENT ME")
                                 }
@@ -276,7 +319,7 @@ export function wrapDirectory(
         }
     }
     $i.callback(createDirectory(
-        $.startPath
+        $.rootDirectory
     ))
     wrapup()
 }

@@ -9,22 +9,51 @@ export type Directory = {
     readDirWithFileTypes: (
         $: {
             path: string,
+            idStyle:
+            | ["absolute", {}]
+            | ["name only", {}]
+            | ["relative from root", {}]
         },
         $i: {
-            onFile: (
-                $: {
-                    name: string,
-                    absolutePath: string,
-                },
-                $i: File,
-            ) => void
-            onDirectory: (
-                $: {
-                    name: string,
-                    absolutePath: string,
-                },
-                $i: Directory,
-            ) => void
+            callbacks: {
+                blockDevice?: (
+                    $: {
+                        id: string,
+                    },
+                ) => void
+                characterDevice?: (
+                    $: {
+                        id: string,
+                    },
+                ) => void
+                directory?: (
+                    $: {
+                        id: string,
+                    },
+                    $i: Directory,
+                ) => void
+                fifo?: (
+                    $: {
+                        id: string,
+                    },
+                ) => void
+                file?: (
+                    $: {
+                        id: string,
+                    },
+                    $i: File,
+                ) => void
+                socket?: (
+                    $: {
+                        id: string,
+                    },
+                ) => void
+                symbolicLink?: (
+                    $: {
+                        id: string,
+                    },
+                ) => void
+            }
             onEnd: () => void
         }
     ) => void
