@@ -5,7 +5,59 @@ export type File = {
     ) => void
 }
 
+export type NodeCallbacks = {
+    blockDevice?: (
+        $: {
+            id: string,
+        },
+    ) => void
+    characterDevice?: (
+        $: {
+            id: string,
+        },
+    ) => void
+    directory?: (
+        $: {
+            id: string,
+        },
+        $i: Directory,
+    ) => void
+    fifo?: (
+        $: {
+            id: string,
+        },
+    ) => void
+    file?: (
+        $: {
+            id: string,
+        },
+        $i: File,
+    ) => void
+    socket?: (
+        $: {
+            id: string,
+        },
+    ) => void
+    symbolicLink?: (
+        $: {
+            id: string,
+        },
+    ) => void
+}
+
 export type Directory = {
+    readRecursively: (
+        $: {
+            directoriesToExclude?: string[],
+            idStyle:
+            | ["absolute", {}]
+            | ["relative from root", {}]
+        },
+        $i: {
+            callbacks: NodeCallbacks
+            onEnd: () => void
+        }
+    ) => void
     readDirWithFileTypes: (
         $: {
             path: string,
@@ -15,45 +67,7 @@ export type Directory = {
             | ["relative from root", {}]
         },
         $i: {
-            callbacks: {
-                blockDevice?: (
-                    $: {
-                        id: string,
-                    },
-                ) => void
-                characterDevice?: (
-                    $: {
-                        id: string,
-                    },
-                ) => void
-                directory?: (
-                    $: {
-                        id: string,
-                    },
-                    $i: Directory,
-                ) => void
-                fifo?: (
-                    $: {
-                        id: string,
-                    },
-                ) => void
-                file?: (
-                    $: {
-                        id: string,
-                    },
-                    $i: File,
-                ) => void
-                socket?: (
-                    $: {
-                        id: string,
-                    },
-                ) => void
-                symbolicLink?: (
-                    $: {
-                        id: string,
-                    },
-                ) => void
-            }
+            callbacks: NodeCallbacks
             onEnd: () => void
         }
     ) => void

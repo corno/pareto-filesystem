@@ -1,5 +1,3 @@
-export * from "./Dirent"
-export * from "./DirentType"
 export * from "./FSError"
 export * from "./MkDirError"
 export * from "./ReadDirError"

@@ -46,6 +46,38 @@ export function runTests(
                                                 }
                                             }
                                         )
+                                        $i.getDirectory(
+                                            "a recursive dir",
+                                            {
+                                                callback: ($i) => {
+                                                    const files: string[] = []
+                                                    $i.readRecursively(
+                                                        {
+                                                            idStyle: ["relative from root", {}],
+                                                            directoriesToExclude: [
+                                                                "excludedDir"
+                                                            ]
+                                                        },
+                                                        {
+                                                            callbacks: {
+                                                                file: ($) => {
+                                                                    files.push($.id)
+                                                                }
+                                                            },
+                                                            onEnd: () => {
+                                                                testSet.testSet.testString(
+                                                                    {
+                                                                        testName: "expected files",
+                                                                        expected: "[\n\t\"a recursive dir/sub/a file.txt\"\n]",
+                                                                        actual: pr.JSONstringify(files),
+                                                                    }
+                                                                )
+                                                            }
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        )
                                     },
                                     onError: ($) => {
                                         $i.testSet.assert({
