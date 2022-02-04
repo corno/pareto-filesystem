@@ -3,8 +3,8 @@ import * as pr from "pareto-runtime"
 import * as fs from "fs"
 import * as pth from "path"
 import { FSError } from "../../interface/types/FSError"
-import { Directory, NodeCallbacks } from "../../interface/interfaces"
-import { ReadDirError, ReadFileError, WriteFileErrorType } from "../../interface/types"
+import { IDirectory, INodeCallbacks, IReadFile, IWriteFile } from "../../interface/interfaces"
+import { ReadDirError, WriteFileErrorType } from "../../interface/types"
 
 type Counter = {
     increment: () => void,
@@ -44,7 +44,7 @@ export function wrapDirectory(
         rootDirectory: string
     },
     $i: {
-        callback: ($: Directory) => void,
+        callback: ($: IDirectory) => void,
         onError: ($: FSError) => void,
         onEnd: () => void,
     }
@@ -56,10 +56,10 @@ export function wrapDirectory(
             const onError = $i.onError
             function createDirectory(
                 contextPath: string,
-            ): Directory {
+            ): IDirectory {
                 function readFile(
                     path: string,
-                    callback: ($: string) => void,
+                    $i: IReadFile,
                 ): void {
                     counter.increment()
                     fs.readFile(
@@ -67,27 +67,79 @@ export function wrapDirectory(
                         { encoding: "utf-8" },
                         (err, data) => {
                             if (err === null) {
-                                callback(data)
+                                $i.callback(data)
                             } else {
+                                const errCode = err.code
+                                switch (errCode) {
+                                    case "ENOENT":
+                                        if ($i.onNotExists !== undefined) {
+                                            $i.onNotExists()
+                                        } else {
+                                            onError({
+                                                path: path,
+                                                error: ["readFile", ["no entity", {}]],
+                                            })
+                                        }
+                                        break 
+                                    case "EISDIR":
+                                        onError({
+                                            path: path,
+                                            error: ["readFile", ["is directory", {}]],
+                                        })
+                                        break 
+                                    default: {
+                                        console.warn(`unknown error code in readFile: ${err.message}`)
+                                        onError({
+                                            path: path,
+                                            error: ["readFile", ["other", { message: err.message }]],
+                                        })
+                                    }
+                                }
+                            }
+                            counter.decrement()
+                        }
+                    )
+                }
+                function writeFile(
+                    $: {
+                        filePath: string,
+                        data: string,
+                    },
+                    $i: IWriteFile
+                ) {
+    
+                    const path = pr.join([contextPath, $.filePath])
+    
+                    counter.increment()
+                    fs.writeFile(
+                        path,
+                        $.data,
+                        (err) => {
+                            if (err !== null) {
                                 const errCode = err.code
                                 onError({
                                     path: path,
-                                    error: ["readFile", ((): ReadFileError => {
+                                    error: ["writeFile", ((): WriteFileErrorType => {
                                         switch (errCode) {
                                             case "ENOENT":
                                                 return ["no entity", {}]
-                                            case "EISDIR":
-                                                return ["is directory", {}]
-
+                                            // case "EISDIR":
+                                            //     return ["is directory", {}]
                                             default: {
-                                                console.warn(`unknown error code in readFile: ${err.message}`)
+                                                console.warn(`unknown error code in writeFile: ${err.message}`)
                                                 return ["other", { message: err.message }]
                                             }
                                         }
                                     })()],
                                 })
+                            } else {
+                                if ($i.onDone !== undefined) {
+
+                                    $i.onDone()
+                                }
                             }
                             counter.decrement()
+    
                         }
                     )
                 }
@@ -101,7 +153,7 @@ export function wrapDirectory(
                         | ["relative from root", {}]
                     },
                     $i: {
-                        callbacks: NodeCallbacks
+                        callbacks: INodeCallbacks
                         onEnd: () => void
                     }
                 ) {
@@ -232,6 +284,27 @@ export function wrapDirectory(
                 }
 
                 return {
+                    createWriteStream: ($, $i) => {
+                        let data = ""
+                        $i(
+                            {
+                                onData: ($) => {
+                                    data += $
+                                },
+                                onEnd: () => {
+                                    writeFile(
+                                        {
+                                            filePath: $.path,
+                                            data: data,
+                                        },
+                                        {
+
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    },
                     getDirectory: ($, $i) => {
                         $i.callback(createDirectory(pr.join([contextPath, $])))
                     },
@@ -267,6 +340,23 @@ export function wrapDirectory(
                                 counter.decrement()
 
                             }
+                        )
+                    },
+                    readDirWithFileTypes: ($, $i) => {
+                        readDirWithFileTypes(
+                            {
+                                fullPath: pr.join([contextPath, $.path]),
+                                idStyle: $.idStyle,
+                            },
+                            $i,
+                        )
+                    },
+                    readFile: ($, $i) => {
+                        const path = pr.join([contextPath, $])
+
+                        readFile(
+                            path,
+                            $i,
                         )
                     },
                     readRecursively: ($, $i) => {
@@ -319,30 +409,13 @@ export function wrapDirectory(
                             },
                         )
                     },
-                    readDirWithFileTypes: ($, $i) => {
-                        readDirWithFileTypes(
-                            {
-                                fullPath: pr.join([contextPath, $.path]),
-                                idStyle: $.idStyle,
-                            },
-                            $i,
-                        )
-                    },
-                    readFile: ($, $i) => {
-                        const path = pr.join([contextPath, $])
-
-                        readFile(
-                            path,
-                            $i
-                        )
-                    },
                     unlink: (
                         $,
-                        callback,
+                        $i,
                     ) => {
                         const path = pr.join([contextPath, $.path])
 
-                        const acceptNonExistence = $.acceptNonExistence
+                        const nonExistenceHandler = $i.onNotExists
                         counter.increment()
                         fs.unlink(
                             path,
@@ -351,7 +424,9 @@ export function wrapDirectory(
                                     const errCode = err.code
                                     switch (errCode) {
                                         case "ENOENT":
-                                            if (!acceptNonExistence) {
+                                            if (nonExistenceHandler !== undefined) {
+                                                nonExistenceHandler()
+                                            } else {
                                                 onError({
                                                     path: path,
                                                     error: ["unlink", ["no entity", {}]],
@@ -367,7 +442,9 @@ export function wrapDirectory(
                                         }
                                     }
                                 } else {
-                                    callback({})
+                                    if ($i.onDone !== undefined) {
+                                        $i.onDone()
+                                    }
                                 }
                                 counter.decrement()
 
@@ -375,36 +452,12 @@ export function wrapDirectory(
                         )
                     },
                     writeFile: ($, $i) => {
-                        const path = pr.join([contextPath, $.filePath])
-
-                        counter.increment()
-                        fs.writeFile(
-                            path,
-                            $.data,
-                            (err) => {
-                                if (err !== null) {
-                                    const errCode = err.code
-                                    onError({
-                                        path: path,
-                                        error: ["writeFile", ((): WriteFileErrorType => {
-                                            switch (errCode) {
-                                                case "ENOENT":
-                                                    return ["no entity", {}]
-                                                // case "EISDIR":
-                                                //     return ["is directory", {}]
-                                                default: {
-                                                    console.warn(`unknown error code in writeFile: ${err.message}`)
-                                                    return ["other", { message: err.message }]
-                                                }
-                                            }
-                                        })()],
-                                    })
-                                } else {
-                                    $i({})
-                                }
-                                counter.decrement()
-
-                            }
+                        writeFile(
+                            {
+                                filePath: $.filePath,
+                                data: $.data,
+                            },
+                            $i,
                         )
                     },
                 }

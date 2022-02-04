@@ -1,11 +1,11 @@
-
-export type File = {
-    read:  (
-        $i: ($: string) => void,
+import * as pr from "pareto-runtime"
+export type IFile = {
+    read: (
+        $i: IReadFile,
     ) => void
 }
 
-export type NodeCallbacks = {
+export type INodeCallbacks = {
     blockDevice?: (
         $: {
             id: string,
@@ -20,7 +20,7 @@ export type NodeCallbacks = {
         $: {
             id: string,
         },
-        $i: Directory,
+        $i: IDirectory,
     ) => void
     fifo?: (
         $: {
@@ -31,7 +31,7 @@ export type NodeCallbacks = {
         $: {
             id: string,
         },
-        $i: File,
+        $i: IFile,
     ) => void
     socket?: (
         $: {
@@ -45,17 +45,26 @@ export type NodeCallbacks = {
     ) => void
 }
 
-export type Directory = {
-    readRecursively: (
+export type IReadFile = {
+    callback: ($: string) => void,
+    onNotExists?: () => void,
+}
+
+export type IWriteFile = {
+    onDone?: () => void
+}
+
+export type IDirectory = {
+    createWriteStream: (
         $: {
-            directoriesToExclude?: string[],
-            idStyle:
-            | ["absolute", {}]
-            | ["relative from root", {}]
+            path: string
         },
+        $i: ($i: pr.IStreamConsumer<string, null>) => void
+    ) => void
+    getDirectory: (
+        $: string,
         $i: {
-            callbacks: NodeCallbacks
-            onEnd: () => void
+            callback: ($i: IDirectory) => void
         }
     ) => void
     readDirWithFileTypes: (
@@ -67,38 +76,46 @@ export type Directory = {
             | ["relative from root", {}]
         },
         $i: {
-            callbacks: NodeCallbacks
+            callbacks: INodeCallbacks
             onEnd: () => void
-        }
-    ) => void
-    getDirectory: (
-        $: string,
-        $i: {
-            callback: ($i: Directory) => void
         }
     ) => void
     readFile: (
         $: string,
-        $i: ($: string) => void,
+        $i: IReadFile,
+    ) => void
+    readRecursively: (
+        $: {
+            directoriesToExclude?: string[],
+            idStyle:
+            | ["absolute", {}]
+            | ["relative from root", {}]
+        },
+        $i: {
+            callbacks: INodeCallbacks
+            onEnd: () => void
+        }
     ) => void
     mkDir: (
         $: string,
         $i: {
-            callback: ($i: Directory) => void
+            callback: ($i: IDirectory) => void
         }
+    ) => void
+    unlink: (
+        $: {
+            path: string,
+        },
+        $i: {
+            onDone?: () => void
+            onNotExists?: () => void
+        },
     ) => void
     writeFile: (
         $: {
             filePath: string
             data: string
         },
-        $i: ($: {}) => void
-    ) => void
-    unlink: (
-        $: {
-            path: string,
-            acceptNonExistence: boolean,
-        },
-        $i: ($: {}) => void,
+        $i: IWriteFile
     ) => void
 }

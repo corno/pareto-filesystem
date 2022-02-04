@@ -24,12 +24,104 @@ export function runTests(
                                 },
                                 {
                                     callback: ($i) => {
-                                        $i.readFile("a file.txt", ($) => {
-                                            testSet.testSet.testString({
-                                                testName: "readFile",
-                                                expected: "foo",
-                                                actual: $,
+
+                                        function testWrite(
+                                            fileName: string,
+                                            callback: (
+                                                $: {
+                                                    fileName: string
+                                                },
+                                                onDone: () => void) => void
+                                        ) {
+                                            $i.readFile(fileName, {
+                                                callback: ($) => {
+                                                    testSet.testSet.assert({
+                                                        testName: "file should not exist",
+                                                        condition: false
+                                                    })
+                                                },
+                                                onNotExists: () => {
+                                                    callback(
+                                                        {
+                                                            fileName: fileName,
+                                                        },
+                                                        () => {
+                                                            $i.readFile(fileName, {
+                                                                callback: ($) => {
+                                                                    $i.unlink(
+                                                                        {
+                                                                            path: fileName,
+                                                                        },
+                                                                        {
+                                                                            onNotExists: () => {
+                                                                                testSet.testSet.assert({
+                                                                                    testName: "file should not exist",
+                                                                                    condition: false
+                                                                                })
+                                                                            },
+                                                                            onDone: () => {
+                                                                                //console.log("!!!!!!!!")
+                                                                                //
+                                                                            }
+                                                                        }
+                                                                    )
+                                                                },
+                                                                onNotExists: () => {
+                                                                    testSet.testSet.assert({
+                                                                        testName: "file should exist",
+                                                                        condition: false
+                                                                    })
+                                                                },
+
+                                                            })
+                                                        }
+                                                    )
+                                                },
+
                                             })
+                                        }
+                                        testWrite(
+                                            "tmp.txt",
+                                            ($, $x) => {
+
+                                                $i.writeFile(
+                                                    {
+                                                        filePath: $.fileName,
+                                                        data: "FOO",
+                                                    },
+                                                    {
+                                                        onDone: () => {
+                                                            $x()
+                                                        }
+                                                    },
+                                                )
+                                            }
+                                        )
+                                        testWrite(
+                                            "tmp2.txt",
+                                            ($, $x) => {
+
+                                                $i.createWriteStream(
+                                                    {
+                                                        path: $.fileName,
+                                                    },
+                                                    ($i) => {
+                                                        $i.onData("FOO")
+                                                        $i.onEnd(null)
+                                                        $x()
+                                                    },
+                                                )
+                                            }
+                                        )
+
+                                        $i.readFile("a file.txt", {
+                                            callback: ($) => {
+                                                testSet.testSet.testString({
+                                                    testName: "readFile",
+                                                    expected: "foo",
+                                                    actual: $,
+                                                })
+                                            }
                                         })
                                         $i.readDirWithFileTypes(
                                             {
