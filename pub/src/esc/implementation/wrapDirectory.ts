@@ -4,7 +4,7 @@ import * as fs from "fs"
 import * as pth from "path"
 import { FSError } from "../../interface/types/FSError"
 import { IDirectory, INodeCallbacks, IReadFile, IWriteFile } from "../../interface/interfaces"
-import { ReadDirError, WriteFileErrorType } from "../../interface/types"
+import { ReadDirError } from "../../interface/types"
 
 type Counter = {
     increment: () => void,

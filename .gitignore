@@ -3,6 +3,8 @@
 /pareto/node_modules/
 /pub/dist/
 /pub/node_modules/
+/pub/src/generated/
 /test/dist/
 /test/node_modules/
+/test/src/generated/
 /tmp

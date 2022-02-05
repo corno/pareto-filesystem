@@ -5,7 +5,7 @@ import * as pr from "pareto-runtime"
 
 
 export function runTests(
-    testDataDir: string
+    testDataDir: string,
 ) {
 
     pt.runTests(

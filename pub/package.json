@@ -17,6 +17,6 @@
   ],
   "version": "0.7.0",
   "dependencies": {
-    "pareto-runtime": "^0.19.1"
+    "pareto-runtime": "^0.22.0"
   }
 }
