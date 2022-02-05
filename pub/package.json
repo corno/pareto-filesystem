@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@types/node": "^17.0.14"
+    "@types/node": "^17.0.15"
   },
   "author": "Corno",
   "description": "filesystem functions for pareto",
