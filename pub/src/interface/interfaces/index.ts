@@ -51,20 +51,35 @@ export type IReadFile = {
 }
 
 export type IWriteFile = {
+    onSuccess?: () => void
     onDone?: () => void
 }
 
 export type IDirectory = {
     createWriteStream: (
         $: {
-            path: string
+            path: string,
+            createMissingDirectories: boolean,
         },
-        $i: ($i: pr.IStreamConsumer<string, null>) => void
+        $i: {
+            consumer: ($i: pr.IStreamConsumer<string, null>) => void,
+            onSuccess?: () => void
+            onDone?: () => void
+        }
     ) => void
     getDirectory: (
         $: string,
         $i: {
             callback: ($i: IDirectory) => void
+        }
+    ) => void
+    mkDir: (
+        $: {
+            path: string,
+            recursive: boolean,
+        },
+        $i: {
+            onSuccess: ($i: IDirectory) => void
         }
     ) => void
     readDirWithFileTypes: (
@@ -96,10 +111,15 @@ export type IDirectory = {
             onEnd: () => void
         }
     ) => void
-    mkDir: (
-        $: string,
+    rm: (
+        $: {
+            path: string,
+            recursive: boolean,
+        },
         $i: {
-            callback: ($i: IDirectory) => void
+            onNotExists?: () => void
+            onSuccess?: () => void
+            onDone?: () => void
         }
     ) => void
     unlink: (
@@ -108,13 +128,15 @@ export type IDirectory = {
         },
         $i: {
             onDone?: () => void
+            onSuccess?: () => void
             onNotExists?: () => void
         },
     ) => void
     writeFile: (
         $: {
-            filePath: string
-            data: string
+            path: string
+            data: string,
+            createMissingDirectories: boolean,
         },
         $i: IWriteFile
     ) => void

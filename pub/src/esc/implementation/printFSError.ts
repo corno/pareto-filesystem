@@ -21,6 +21,11 @@ export function printFSError(
                     return `readFile failed: ${$[0]}`
 
                 })
+            case "rmdir":
+                return pr.cc($.error[1], ($) => {
+                    return `rmdir failed: ${$[0]}`
+
+                })
             case "unlink":
                 return pr.cc($.error[1], ($) => {
                     return `unlink failed: ${$[0]}`

@@ -57,6 +57,49 @@ export function wrapDirectory(
             function createDirectory(
                 contextPath: string,
             ): IDirectory {
+                function mkDir(
+                    path: string,
+                    recursive: boolean,
+                    $i: {
+                        callback: ($i: IDirectory) => void,
+                    }
+                ) {
+                    counter.increment()
+                    fs.mkdir(
+                        path,
+                        { recursive: recursive },
+                        (err) => {
+                            if (err !== null) {
+                                const errCode = err.code
+                                switch (errCode) {
+                                    case "EEXIST":
+                                        onError({
+                                            path: path,
+                                            error: ["mkdir", ["exists", {}]],
+                                        })
+                                        break
+                                    case "ENOENT":
+                                        onError({
+                                            path: path,
+                                            error: ["mkdir", ["no entity", {}]],
+                                        })
+                                        break
+                                    // case "EISDIR":
+                                    //     return ["is directory", {}]
+                                    default: {
+                                        console.warn(`unknown error code in mkdir: ${err.message}`)
+                                        return ["other", { message: err.message }]
+                                    }
+                                }
+                            } else {
+                                $i.callback(createDirectory(
+                                    pr.join([contextPath, path])
+                                ))
+                            }
+                            counter.decrement()
+                        }
+                    )
+                }
                 function readFile(
                     path: string,
                     $i: IReadFile,
@@ -80,13 +123,13 @@ export function wrapDirectory(
                                                 error: ["readFile", ["no entity", {}]],
                                             })
                                         }
-                                        break 
+                                        break
                                     case "EISDIR":
                                         onError({
                                             path: path,
                                             error: ["readFile", ["is directory", {}]],
                                         })
-                                        break 
+                                        break
                                     default: {
                                         console.warn(`unknown error code in readFile: ${err.message}`)
                                         onError({
@@ -104,44 +147,63 @@ export function wrapDirectory(
                     $: {
                         filePath: string,
                         data: string,
+                        createMissingDirectories: boolean,
                     },
                     $i: IWriteFile
                 ) {
-    
+
                     const path = pr.join([contextPath, $.filePath])
-    
-                    counter.increment()
-                    fs.writeFile(
-                        path,
-                        $.data,
-                        (err) => {
-                            if (err !== null) {
-                                const errCode = err.code
-                                onError({
-                                    path: path,
-                                    error: ["writeFile", ((): WriteFileErrorType => {
-                                        switch (errCode) {
-                                            case "ENOENT":
-                                                return ["no entity", {}]
-                                            // case "EISDIR":
-                                            //     return ["is directory", {}]
-                                            default: {
-                                                console.warn(`unknown error code in writeFile: ${err.message}`)
-                                                return ["other", { message: err.message }]
-                                            }
+
+                    function wf() {
+                        counter.increment()
+                        fs.writeFile(
+                            path,
+                            $.data,
+                            (err) => {
+                                if (err !== null) {
+                                    const errCode = err.code
+                                    switch (errCode) {
+                                        case "ENOENT":
+                                            onError({
+                                                path: path,
+                                                error: ["writeFile", ["no entity", {}]],
+                                            })
+                                            break
+                                        default: {
+                                            console.warn(`unknown error code in writeFile: ${err.message}`)
+                                            onError({
+                                                path: path,
+                                                error: ["writeFile", ["other", { message: err.message }]],
+                                            })
                                         }
-                                    })()],
-                                })
-                            } else {
+                                    }
+                                } else {
+                                    if ($i.onSuccess !== undefined) {
+
+                                        $i.onSuccess()
+                                    }
+                                }
                                 if ($i.onDone !== undefined) {
 
                                     $i.onDone()
                                 }
+                                counter.decrement()
                             }
-                            counter.decrement()
-    
-                        }
-                    )
+                        )
+                    }
+                    if ($.createMissingDirectories) {
+                        mkDir(
+                            pth.dirname(path),
+                            true,
+                            {
+                                callback: ($i) => {
+                                    wf()
+                                }
+                            }
+                        )
+                    } else {
+                        wf()
+                    }
                 }
 
                 function readDirWithFileTypes(
@@ -286,7 +348,7 @@ export function wrapDirectory(
                 return {
                     createWriteStream: ($, $i) => {
                         let data = ""
-                        $i(
+                        $i.consumer(
                             {
                                 onData: ($) => {
                                     data += $
@@ -296,9 +358,10 @@ export function wrapDirectory(
                                         {
                                             filePath: $.path,
                                             data: data,
+                                            createMissingDirectories: $.createMissingDirectories,
                                         },
                                         {
-
+                                            onDone: $i.onDone
                                         }
                                     )
                                 }
@@ -309,37 +372,13 @@ export function wrapDirectory(
                         $i.callback(createDirectory(pr.join([contextPath, $])))
                     },
                     mkDir: ($, $i) => {
-                        const path = pr.join([contextPath, $])
-                        counter.increment()
-
-                        fs.mkdir(
+                        const path = pr.join([contextPath, $.path])
+                        mkDir(
                             path,
-                            { recursive: true },
-                            (err) => {
-                                if (err !== null) {
-                                    const errCode = err.code
-                                    switch (errCode) {
-                                        case "ENOENT":
-                                            onError({
-                                                path: path,
-                                                error: ["mkdir", ["no entity", {}]],
-                                            })
-                                            break
-                                        // case "EISDIR":
-                                        //     return ["is directory", {}]
-                                        default: {
-                                            console.warn(`unknown error code in mkdir: ${err.message}`)
-                                            return ["other", { message: err.message }]
-                                        }
-                                    }
-                                } else {
-                                    $i.callback(createDirectory(
-                                        pr.join([contextPath, $])
-                                    ))
-                                }
-                                counter.decrement()
-
-                            }
+                            $.recursive,
+                            {
+                                callback: $i.onSuccess
+                            },
                         )
                     },
                     readDirWithFileTypes: ($, $i) => {
@@ -409,12 +448,66 @@ export function wrapDirectory(
                             },
                         )
                     },
+                    rm: ($, $i) => {
+                        const path = pr.join([contextPath, $.path])
+                        const nonExistenceHandler = $i.onNotExists
+                        counter.increment()
+                        fs.rm(
+                            path,
+
+                            { recursive: $.recursive },
+                            (err) => {
+                                if (err !== null) {
+                                    const errCode = err.code
+                                    switch (errCode) {
+                                        case "ENOENT":
+                                            if (nonExistenceHandler !== undefined) {
+                                                nonExistenceHandler()
+                                            } else {
+                                                onError({
+                                                    path: path,
+                                                    error: ["rmdir", ["no entity", {}]],
+                                                })
+                                            }
+                                            break
+                                        case "ENOTEMPTY":
+                                            onError({
+                                                path: path,
+                                                error: ["rmdir", ["not empty", {}]],
+                                            })
+                                            break
+                                        // case "EISDIR":
+                                        //     onError({
+                                        //         path: path,
+                                        //         error: ["unlink", ["is directory", {}]],
+                                        //     })
+                                        //     break
+                                        default: {
+                                            console.warn(`unknown error code in rmdir: ${err.message}`)
+                                            onError({
+                                                path: path,
+                                                error: ["rmdir", ["other", { message: err.message }]],
+                                            })
+                                        }
+                                    }
+                                } else {
+                                    if ($i.onSuccess !== undefined) {
+                                        $i.onSuccess()
+                                    }
+                                }
+                                if ($i.onDone !== undefined) {
+                                    $i.onDone()
+                                }
+                                counter.decrement()
+                            }
+                        )
+                    },
                     unlink: (
                         $,
                         $i,
                     ) => {
                         const path = pr.join([contextPath, $.path])
-
+                        console.log(path, "!!!!!")
                         const nonExistenceHandler = $i.onNotExists
                         counter.increment()
                         fs.unlink(
@@ -433,6 +526,12 @@ export function wrapDirectory(
                                                 })
                                             }
                                             break
+                                        case "EISDIR":
+                                            onError({
+                                                path: path,
+                                                error: ["unlink", ["is directory", {}]],
+                                            })
+                                            break
                                         default: {
                                             console.warn(`unknown error code in unlink: ${err.message}`)
                                             onError({
@@ -442,9 +541,12 @@ export function wrapDirectory(
                                         }
                                     }
                                 } else {
-                                    if ($i.onDone !== undefined) {
-                                        $i.onDone()
+                                    if ($i.onSuccess !== undefined) {
+                                        $i.onSuccess()
                                     }
+                                }
+                                if ($i.onDone !== undefined) {
+                                    $i.onDone()
                                 }
                                 counter.decrement()
 
@@ -454,8 +556,9 @@ export function wrapDirectory(
                     writeFile: ($, $i) => {
                         writeFile(
                             {
-                                filePath: $.filePath,
+                                filePath: $.path,
                                 data: $.data,
+                                createMissingDirectories: $.createMissingDirectories,
                             },
                             $i,
                         )

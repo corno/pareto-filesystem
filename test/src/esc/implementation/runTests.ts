@@ -1,5 +1,5 @@
 
-import * as fp from "../../../../pub"
+import * as pf from "../../../../pub"
 import * as pt from "pareto-test"
 import * as pr from "pareto-runtime"
 
@@ -18,150 +18,168 @@ export function runTests(
                     {
                         registerListener: ($i) => {
                             const testSet = $i
-                            fp.wrapDirectory(
+                            pf.wrapDirectory(
                                 {
                                     rootDirectory: testDataDir,
                                 },
                                 {
                                     callback: ($i) => {
 
-                                        function testWrite(
-                                            fileName: string,
-                                            callback: (
-                                                $: {
-                                                    fileName: string
-                                                },
-                                                onDone: () => void) => void
-                                        ) {
-                                            $i.readFile(fileName, {
-                                                callback: ($) => {
-                                                    testSet.testSet.assert({
-                                                        testName: "file should not exist",
-                                                        condition: false
-                                                    })
-                                                },
+                                        $i.rm(
+                                            {
+                                                path: "tmp",
+                                                recursive: true,
+                                            },
+                                            {
                                                 onNotExists: () => {
-                                                    callback(
+                                                    //don't do anything //but the callback should be here
+                                                },
+                                                onDone: () => {
+                                                    $i.mkDir(
                                                         {
-                                                            fileName: fileName,
+                                                            path: "tmp",
+                                                            recursive: false,
                                                         },
-                                                        () => {
-                                                            $i.readFile(fileName, {
-                                                                callback: ($) => {
-                                                                    $i.unlink(
-                                                                        {
-                                                                            path: fileName,
+                                                        {
+                                                            onSuccess: () => {
+
+                                                                function testWrite(
+                                                                    filePath: string,
+                                                                    writeCallback: (
+                                                                        $: {
+                                                                            fileName: string
                                                                         },
+                                                                    ) => void
+                                                                ) {
+                                                                    $i.getDirectory(
+                                                                        "tmp",
                                                                         {
-                                                                            onNotExists: () => {
-                                                                                testSet.testSet.assert({
-                                                                                    testName: "file should not exist",
-                                                                                    condition: false
+                                                                            callback: ($i) => {
+                                                                                $i.readFile(filePath, {
+                                                                                    callback: ($) => {
+                                                                                        testSet.testSet.assert({
+                                                                                            testName: `file should not exist: ${filePath}`,
+                                                                                            condition: false
+                                                                                        })
+                                                                                    },
+                                                                                    onNotExists: () => {
+                                                                                        writeCallback(
+                                                                                            {
+                                                                                                fileName: pr.join(["tmp", filePath]),
+                                                                                            }
+                                                                                        )
+                                                                                    },
                                                                                 })
-                                                                            },
-                                                                            onDone: () => {
-                                                                                //console.log("!!!!!!!!")
-                                                                                //
+
                                                                             }
                                                                         }
                                                                     )
-                                                                },
-                                                                onNotExists: () => {
-                                                                    testSet.testSet.assert({
-                                                                        testName: "file should exist",
-                                                                        condition: false
-                                                                    })
-                                                                },
-
-                                                            })
-                                                        }
-                                                    )
-                                                },
-
-                                            })
-                                        }
-                                        testWrite(
-                                            "tmp.txt",
-                                            ($, $x) => {
-
-                                                $i.writeFile(
-                                                    {
-                                                        filePath: $.fileName,
-                                                        data: "FOO",
-                                                    },
-                                                    {
-                                                        onDone: () => {
-                                                            $x()
-                                                        }
-                                                    },
-                                                )
-                                            }
-                                        )
-                                        testWrite(
-                                            "tmp2.txt",
-                                            ($, $x) => {
-
-                                                $i.createWriteStream(
-                                                    {
-                                                        path: $.fileName,
-                                                    },
-                                                    ($i) => {
-                                                        $i.onData("FOO")
-                                                        $i.onEnd(null)
-                                                        $x()
-                                                    },
-                                                )
-                                            }
-                                        )
-
-                                        $i.readFile("a file.txt", {
-                                            callback: ($) => {
-                                                testSet.testSet.testString({
-                                                    testName: "readFile",
-                                                    expected: "foo",
-                                                    actual: $,
-                                                })
-                                            }
-                                        })
-                                        $i.readDirWithFileTypes(
-                                            {
-
-                                                path: "a dir",
-                                                idStyle: ["name only", {}],
-                                            },
-                                            {
-                                                callbacks: {
-
-                                                },
-                                                onEnd: () => {
-
-                                                }
-                                            }
-                                        )
-                                        $i.getDirectory(
-                                            "a recursive dir",
-                                            {
-                                                callback: ($i) => {
-                                                    const files: string[] = []
-                                                    $i.readRecursively(
-                                                        {
-                                                            idStyle: ["relative from root", {}],
-                                                            directoriesToExclude: [
-                                                                "excludedDir"
-                                                            ]
-                                                        },
-                                                        {
-                                                            callbacks: {
-                                                                file: ($) => {
-                                                                    files.push($.id)
                                                                 }
-                                                            },
-                                                            onEnd: () => {
-                                                                testSet.testSet.testString(
+                                                                testWrite(
+                                                                    "tmp.txt",
+                                                                    ($) => {
+
+                                                                        $i.writeFile(
+                                                                            {
+                                                                                path: $.fileName,
+                                                                                data: "FOO",
+                                                                                createMissingDirectories: false,
+                                                                            },
+                                                                            {
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                )
+                                                                testWrite(
+                                                                    "tmp2.txt",
+                                                                    ($) => {
+
+                                                                        $i.createWriteStream(
+                                                                            {
+                                                                                path: $.fileName,
+                                                                                createMissingDirectories: false,
+                                                                            },
+                                                                            {
+                                                                                consumer: ($i) => {
+                                                                                    $i.onData("FOO")
+                                                                                    $i.onEnd(null)
+                                                                                },
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                )
+                                                                testWrite(
+                                                                    "dir/tmp2.txt",
+                                                                    ($) => {
+                                                                        $i.createWriteStream(
+                                                                            {
+                                                                                path: $.fileName,
+                                                                                createMissingDirectories: true,
+                                                                            },
+                                                                            {
+                                                                                consumer: ($i) => {
+                                                                                    $i.onData("FOO")
+                                                                                    $i.onEnd(null)
+                                                                                },
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                )
+
+                                                                $i.readFile("a file.txt", {
+                                                                    callback: ($) => {
+                                                                        testSet.testSet.testString({
+                                                                            testName: "readFile",
+                                                                            expected: "foo",
+                                                                            actual: $,
+                                                                        })
+                                                                    }
+                                                                })
+                                                                $i.readDirWithFileTypes(
                                                                     {
-                                                                        testName: "expected files",
-                                                                        expected: "[\n\t\"a recursive dir/sub/a file.txt\"\n]",
-                                                                        actual: pr.JSONstringify(files),
+
+                                                                        path: "a dir",
+                                                                        idStyle: ["name only", {}],
+                                                                    },
+                                                                    {
+                                                                        callbacks: {
+
+                                                                        },
+                                                                        onEnd: () => {
+
+                                                                        }
+                                                                    }
+                                                                )
+                                                                $i.getDirectory(
+                                                                    "a recursive dir",
+                                                                    {
+                                                                        callback: ($i) => {
+                                                                            const files: string[] = []
+                                                                            $i.readRecursively(
+                                                                                {
+                                                                                    idStyle: ["relative from root", {}],
+                                                                                    directoriesToExclude: [
+                                                                                        "excludedDir"
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    callbacks: {
+                                                                                        file: ($) => {
+                                                                                            files.push($.id)
+                                                                                        }
+                                                                                    },
+                                                                                    onEnd: () => {
+                                                                                        testSet.testSet.testString(
+                                                                                            {
+                                                                                                testName: "expected files",
+                                                                                                expected: "[\n\t\"a recursive dir/sub/a file.txt\"\n]",
+                                                                                                actual: pr.JSONstringify(files),
+                                                                                            }
+                                                                                        )
+                                                                                    }
+                                                                                }
+                                                                            )
+                                                                        }
                                                                     }
                                                                 )
                                                             }
@@ -172,8 +190,9 @@ export function runTests(
                                         )
                                     },
                                     onError: ($) => {
+
                                         $i.testSet.assert({
-                                            testName: "unexpected Error",
+                                            testName: `unexpected error: ${pf.printFSError($)}`,
                                             condition: false,
                                         })
                                     },

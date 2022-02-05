@@ -1,7 +1,7 @@
 
-export type UnlinkErrorType =
+export type RmDirError =
 | ["no entity", {}]
-| ["is directory", {}]
+| ["not empty", {}]
 | ["other", {
     readonly "message": string
 }]
