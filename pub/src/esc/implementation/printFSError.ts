@@ -1,8 +1,8 @@
 import * as pr from "pareto-runtime"
-import { FSError } from "../../interface/types";
+import { TFSError } from "../../interface/types";
 
 export function printFSError(
-    $: FSError
+    $: TFSError
 ) {
     return `${((): string => {
 

@@ -1,5 +1,5 @@
 
-export type WriteFileErrorType =
+export type TWriteFileErrorType =
 | ["no entity", {}]
 //| ["is directory", {}]
 | ["other", {

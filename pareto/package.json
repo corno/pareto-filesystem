@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "analysePackage": "npx analysePackage ..",
+    "analysePackage": "./scripts/analysePackage.sh",
+    "analyseTypescript": "./scripts/analyseAllTypeScriptProjects.sh",
     "test": "./scripts/buildAndTest.sh",
     "pubMin": "./scripts/publish.sh minor",
     "pubPatch": "./scripts/publish.sh patch",
@@ -9,6 +10,6 @@
     "update2latestAndPublishPath": "./scripts/update2latestAndPublish.sh patch"
   },
   "dependencies": {
-    "pareto-ts-validator": "^0.6.0"
+    "pareto-ts-validator": "^0.8.1"
   }
 }

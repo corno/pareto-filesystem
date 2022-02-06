@@ -1,142 +1,142 @@
 import * as pr from "pareto-runtime"
 export type IFile = {
-    read: (
+    readonly "read": (
         $i: IReadFile,
     ) => void
 }
 
 export type INodeCallbacks = {
-    blockDevice?: (
+    readonly "blockDevice"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
     ) => void
-    characterDevice?: (
+    readonly "characterDevice"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
     ) => void
-    directory?: (
+    readonly "directory"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
         $i: IDirectory,
     ) => void
-    fifo?: (
+    readonly "fifo"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
     ) => void
-    file?: (
+    readonly "file"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
         $i: IFile,
     ) => void
-    socket?: (
+    readonly "socket"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
     ) => void
-    symbolicLink?: (
+    readonly "symbolicLink"?: (
         $: {
-            id: string,
+            readonly "id": string,
         },
     ) => void
 }
 
 export type IReadFile = {
-    callback: ($: string) => void,
-    onNotExists?: () => void,
+    readonly "callback": ($: string) => void,
+    readonly "onNotExists"?: () => void,
 }
 
 export type IWriteFile = {
-    onSuccess?: () => void
-    onDone?: () => void
+    readonly "onSuccess"?: () => void
+    readonly "onDone"?: () => void
 }
 
 export type IDirectory = {
-    createWriteStream: (
+    readonly "createWriteStream": (
         $: {
-            path: string,
-            createMissingDirectories: boolean,
+            readonly "path": string,
+            readonly "createMissingDirectories": boolean,
         },
         $i: {
-            consumer: ($i: pr.IStreamConsumer<string, null>) => void,
-            onSuccess?: () => void
-            onDone?: () => void
+            readonly "consumer": ($i: pr.IStreamConsumer<string, null>) => void,
+            readonly "onSuccess"?: () => void
+            readonly "onDone"?: () => void
         }
     ) => void
-    getDirectory: (
+    readonly "getDirectory": (
         $: string,
         $i: {
-            callback: ($i: IDirectory) => void
+            readonly "callback": ($i: IDirectory) => void
         }
     ) => void
-    mkDir: (
+    readonly "mkDir": (
         $: {
-            path: string,
-            recursive: boolean,
+            readonly "path": string,
+            readonly "recursive": boolean,
         },
         $i: {
-            onSuccess: ($i: IDirectory) => void
+            readonly "onSuccess": ($i: IDirectory) => void
         }
     ) => void
-    readDirWithFileTypes: (
+    readonly "readDirWithFileTypes": (
         $: {
-            path: string,
-            idStyle:
+            readonly "path": string,
+            readonly "idStyle":
             | ["absolute", {}]
             | ["name only", {}]
             | ["relative from root", {}]
         },
         $i: {
-            callbacks: INodeCallbacks
-            onEnd: () => void
+            readonly "callbacks": INodeCallbacks
+            readonly "onEnd": () => void
         }
     ) => void
-    readFile: (
+    readonly "readFile": (
         $: string,
         $i: IReadFile,
     ) => void
-    readRecursively: (
+    readonly "readRecursively": (
         $: {
-            directoriesToExclude?: string[],
-            idStyle:
+            readonly "directoriesToExclude"?: string[],
+            readonly "idStyle":
             | ["absolute", {}]
             | ["relative from root", {}]
         },
         $i: {
-            callbacks: INodeCallbacks
-            onEnd: () => void
+            readonly "callbacks": INodeCallbacks
+            readonly "onEnd": () => void
         }
     ) => void
-    rm: (
+    readonly "rm": (
         $: {
-            path: string,
-            recursive: boolean,
+            readonly "path": string,
+            readonly "recursive": boolean,
         },
         $i: {
-            onNotExists?: () => void
-            onSuccess?: () => void
-            onDone?: () => void
+            readonly "onNotExists"?: () => void
+            readonly "onSuccess"?: () => void
+            readonly "onDone"?: () => void
         }
     ) => void
-    unlink: (
+    readonly "unlink": (
         $: {
-            path: string,
+            readonly "path": string,
         },
         $i: {
-            onDone?: () => void
-            onSuccess?: () => void
-            onNotExists?: () => void
+            readonly "onDone"?: () => void
+            readonly "onSuccess"?: () => void
+            readonly "onNotExists"?: () => void
         },
     ) => void
-    writeFile: (
+    readonly "writeFile": (
         $: {
-            path: string
-            data: string,
-            createMissingDirectories: boolean,
+            readonly "path": string
+            readonly "data": string,
+            readonly "createMissingDirectories": boolean,
         },
         $i: IWriteFile
     ) => void

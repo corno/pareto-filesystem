@@ -1,17 +1,17 @@
-import { MkDirErrorType } from "./MkDirError";
-import { ReadDirError } from "./ReadDirError";
-import { ReadFileError } from "./ReadFileError";
-import { UnlinkErrorType } from "./UnlinkErrorType";
-import { RmDirError } from "./RmDirError";
-import { WriteFileErrorType } from "./WriteFileErrorType";
+import { TMkDirErrorType } from "./MkDirError";
+import { TReadDirError } from "./ReadDirError";
+import { TReadFileError } from "./ReadFileError";
+import { TUnlinkErrorType } from "./UnlinkErrorType";
+import { TRmDirError } from "./RmDirError";
+import { TWriteFileErrorType } from "./WriteFileErrorType";
 
-export type FSError = {
-    path: string
-    error:
-    | ["mkdir", MkDirErrorType]
-    | ["writeFile", WriteFileErrorType]
-    | ["readFile", ReadFileError]
-    | ["readdir", ReadDirError]
-    | ["rmdir", RmDirError]
-    | ["unlink", UnlinkErrorType]
+export type TFSError = {
+    readonly "path": string
+    readonly "error":
+    | ["mkdir", TMkDirErrorType]
+    | ["writeFile", TWriteFileErrorType]
+    | ["readFile", TReadFileError]
+    | ["readdir", TReadDirError]
+    | ["rmdir", TRmDirError]
+    | ["unlink", TUnlinkErrorType]
 }

@@ -1,5 +1,5 @@
 
-export type MkDirErrorType =
+export type TMkDirErrorType =
 | ["no entity", {}]
 | ["exists", {}]
 //| ["is directory", {}]

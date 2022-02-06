@@ -1,5 +1,5 @@
 
-export type RmDirError =
+export type TRmDirError =
 | ["no entity", {}]
 | ["not empty", {}]
 | ["other", {

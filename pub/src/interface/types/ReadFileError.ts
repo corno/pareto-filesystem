@@ -1,5 +1,5 @@
 
-export type ReadFileError =
+export type TReadFileError =
 | ["no entity", {}]
 | ["is directory", {}]
 | ["other", {

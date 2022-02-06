@@ -2,9 +2,9 @@ import * as pr from "pareto-runtime"
 
 import * as fs from "fs"
 import * as pth from "path"
-import { FSError } from "../../interface/types/FSError"
+import { TFSError } from "../../interface/types/FSError"
 import { IDirectory, INodeCallbacks, IReadFile, IWriteFile } from "../../interface/interfaces"
-import { ReadDirError } from "../../interface/types"
+import { TReadDirError } from "../../interface/types"
 
 type Counter = {
     increment: () => void,
@@ -45,7 +45,7 @@ export function wrapDirectory(
     },
     $i: {
         callback: ($: IDirectory) => void,
-        onError: ($: FSError) => void,
+        onError: ($: TFSError) => void,
         onEnd: () => void,
     }
 ): void {
@@ -325,7 +325,7 @@ export function wrapDirectory(
                                 const errCode = err.code
                                 onError({
                                     path: path,
-                                    error: ["readdir", ((): ReadDirError => {
+                                    error: ["readdir", ((): TReadDirError => {
                                         switch (errCode) {
                                             case "ENOENT":
                                                 return ["no entity", {}]

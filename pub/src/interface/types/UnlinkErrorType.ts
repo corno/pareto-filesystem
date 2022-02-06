@@ -1,5 +1,5 @@
 
-export type UnlinkErrorType =
+export type TUnlinkErrorType =
 | ["no entity", {}]
 | ["is directory", {}]
 | ["other", {
