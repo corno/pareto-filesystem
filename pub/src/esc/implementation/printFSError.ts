@@ -1,5 +1,5 @@
 import * as pr from "pareto-runtime"
-import { TFSError } from "../../interface/types";
+import { TFSError } from "../../interface";
 
 export function printFSError(
     $: TFSError

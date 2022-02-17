@@ -7,4 +7,5 @@ then
     $dir/analyseTypeScriptProject.sh ../dev/tsconfig.json
 fi && \
 
+$dir/analyseTypeScriptProject.sh ../pub/tsconfig.json && \
 $dir/analyseTypeScriptProject.sh ../test/tsconfig.json
