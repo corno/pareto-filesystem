@@ -3,7 +3,7 @@ import * as pr from "pareto-runtime"
 import * as fs from "fs"
 import * as pth from "path"
 import { TFSError } from "../../interface/types/FSError"
-import { IDirectory, INodeCallbacks, IReadFile, IWriteFile } from "../../interface/creators"
+import { IDirectory, INodeCallbacks, IReadFile, IWriteFile } from "../creators"
 import { TReadDirError } from "../../interface"
 import { createCounter } from "../../modules/counter/esc/createCounter"
 
