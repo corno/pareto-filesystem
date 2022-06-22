@@ -192,7 +192,7 @@ export function runTests(
                                     onError: ($) => {
 
                                         $i.testSet.assert({
-                                            testName: `unexpected error: ${pf.printFSError($)}`,
+                                            testName: `unexpected error: ${pf.createFSErrorMessage($)}`,
                                             condition: false,
                                         })
                                     },

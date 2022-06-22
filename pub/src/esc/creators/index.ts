@@ -7,28 +7,28 @@ export type IFile = {
 
 export type INodeCallbacks = {
     readonly "blockDevice"?: (
-        $: {
+        $d: {
             readonly "id": string,
         },
     ) => void
     readonly "characterDevice"?: (
-        $: {
+        $d: {
             readonly "id": string,
         },
     ) => void
     readonly "directory"?: (
-        $: {
+        $d: {
             readonly "id": string,
         },
         $i: IDirectory,
     ) => void
     readonly "fifo"?: (
-        $: {
+        $d: {
             readonly "id": string,
         },
     ) => void
     readonly "file"?: (
-        $: {
+        $d: {
             readonly "id": string,
         },
         $i: IFile,
@@ -39,14 +39,14 @@ export type INodeCallbacks = {
         },
     ) => void
     readonly "symbolicLink"?: (
-        $: {
+        $d: {
             readonly "id": string,
         },
     ) => void
 }
 
 export type IReadFile = {
-    readonly "callback": ($: string) => void,
+    readonly "callback": ($d: string) => void,
     readonly "onNotExists"?: () => void,
 }
 
@@ -57,7 +57,7 @@ export type IWriteFile = {
 
 export type IDirectory = {
     readonly "createWriteStream": (
-        $: {
+        $d: {
             readonly "path": string,
             readonly "createMissingDirectories": boolean,
         },
@@ -68,13 +68,13 @@ export type IDirectory = {
         }
     ) => void
     readonly "getDirectory": (
-        $: string,
+        $d: string,
         $i: {
             readonly "callback": ($i: IDirectory) => void
         }
     ) => void
     readonly "mkDir": (
-        $: {
+        $d: {
             readonly "path": string,
             readonly "recursive": boolean,
         },
@@ -83,7 +83,7 @@ export type IDirectory = {
         }
     ) => void
     readonly "readDirWithFileTypes": (
-        $: {
+        $d: {
             readonly "path": string,
             readonly "idStyle":
             | ["absolute", {}]
@@ -96,11 +96,17 @@ export type IDirectory = {
         }
     ) => void
     readonly "readFile": (
-        $: string,
+        $d: string,
         $i: IReadFile,
     ) => void
+    /**
+     * this is readRecursively
+     */
     readonly "readRecursively": (
-        $: {
+        $d: {
+            /**
+             * directories to exclude
+             */
             readonly "directoriesToExclude"?: string[],
             readonly "idStyle":
             | ["absolute", {}]
@@ -112,7 +118,7 @@ export type IDirectory = {
         }
     ) => void
     readonly "rm": (
-        $: {
+        $d: {
             readonly "path": string,
             readonly "recursive": boolean,
         },
@@ -123,7 +129,7 @@ export type IDirectory = {
         }
     ) => void
     readonly "unlink": (
-        $: {
+        $d: {
             readonly "path": string,
         },
         $i: {
@@ -132,8 +138,13 @@ export type IDirectory = {
             readonly "onNotExists"?: () => void
         },
     ) => void
+    readonly "wrapAsync": (
+        $i: {
+            callback: ($i: { onDone: () => void }) => void
+        }
+    ) => void
     readonly "writeFile": (
-        $: {
+        $d: {
             readonly "path": string
             readonly "data": string,
             readonly "createMissingDirectories": boolean,

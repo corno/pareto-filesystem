@@ -520,12 +520,21 @@ export function wrapDirectory(
                             }
                         )
                     },
-                    writeFile: ($, $i) => {
+                    wrapAsync: ($i) => {
+                        counter.increment({})
+                        $i.callback({
+                            onDone: () => {
+                                counter.decrement({})
+                            }
+                        })
+                        
+                    },
+                    writeFile: ($d, $i) => {
                         writeFile(
                             {
-                                filePath: $.path,
-                                data: $.data,
-                                createMissingDirectories: $.createMissingDirectories,
+                                filePath: $d.path,
+                                data: $d.data,
+                                createMissingDirectories: $d.createMissingDirectories,
                             },
                             $i,
                         )

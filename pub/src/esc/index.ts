@@ -1,2 +1,3 @@
 export * from "./implementation/wrapDirectory"
-export * from "./implementation/printFSError"
+export * from "../modules/counter"
+export * from "./implementation/createFSErrorMessage"

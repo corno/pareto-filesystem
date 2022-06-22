@@ -1,7 +1,7 @@
 import * as pr from "pareto-runtime"
 import { TFSError } from "../../interface";
 
-export function printFSError(
+export function createFSErrorMessage(
     $: TFSError
 ) {
     return `${((): string => {

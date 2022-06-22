@@ -10,6 +10,7 @@
     "update2latestAndPublishPath": "./scripts/update2latestAndPublish.sh patch"
   },
   "dependencies": {
-    "pareto-ts-validator": "^0.8.1"
+    "npm-safe-install": "^1.1.0",
+    "pareto-ts-validator": "^0.9.0"
   }
 }
