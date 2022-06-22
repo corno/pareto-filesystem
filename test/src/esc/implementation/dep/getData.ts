@@ -94,7 +94,7 @@ export function getData(
                                                             } else {
                                                                 //console.log(stdout)
                                                                 const partsBuilder = pr.createDictionaryBuilder<null | LocalPart>()
-                                                                const sourceDirs = ["pub", "test", "dev"]
+                                                                const sourceDirs = ["pub", "test", "dev", "pareto"]
                                                                 sourceDirs.forEach($ => {
                                                                     $i.readFile(
                                                                         `${$}/package.json`,
