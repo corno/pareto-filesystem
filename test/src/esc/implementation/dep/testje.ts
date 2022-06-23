@@ -1,9 +1,4 @@
-import * as pf from "../../../../../pub/dist"
 import * as pr from "pareto-runtime"
-import { createDictionaryBuilder } from "pareto-runtime"
-import * as https from "https"
-import * as fs from "fs"
-import { LocalProject } from "./data"
 import { getData } from "./getData"
 
 const red = "\x1b[31m"
@@ -12,10 +7,6 @@ const yellow = "\x1b[33m"
 const cyan = "\x1b[36m"
 const reset = "\x1b[0m"
 
-function versionIsEqual(linkedVersion: string, latestVersion: string) {
-    return linkedVersion === `^${latestVersion}`
-}
-
 pr.runProgram(
     (programData) => {
         if (programData.argument === undefined) {
@@ -23,67 +14,44 @@ pr.runProgram(
         }
         getData(
             programData.argument,
-            (depOverview) => {
-
-                //outdated deps
-                console.log("")
-                console.log("outdated:")
-                depOverview.projects.forEach(($, projectName) => {
-                    $.parts.forEach(($, partName) => {
-                        if ($[0] === "found") {
-                            $[1].local.dependencies.forEach(($, depName) => {
-                                depOverview.referencedProjects.find(
-                                    depName,
-                                    ($$) => {
-                                        if (!versionIsEqual($, $$.latestVersion)) {
-                                            console.log(`${projectName}>${depName}: ${$$.latestVersion} <> ${$}`)
-                                        }
-                                    },
-                                    () => {
-                                        throw new Error("!!!!!")
-                                    }
-                                )
-                            })
-                        }
-                    })
-                })
+            (statusOverview) => {
 
                 //local project overview
                 console.log(``)
                 console.log(`local project overview`)
-                depOverview.projects.forEach(($, projectName) => {
+                statusOverview.projects.forEach(($, projectName) => {
 
-                    console.log(`\t${projectName} ${!$.gitClean ? `${red}!uncommitted changes${reset}` : ""}`)
-                    $.parts.forEach(($, partName) => {
+                    console.log(`\t${projectName} ${$.project.isClean ? "" : `${red}!! ${reset}` } ${!$.project.gitClean ? `${red}uncommitted changes${reset}` : ""}`)
+                    $.project.parts.forEach(($, partName) => {
                         //console.log(`$#### ${partName}`)
                         if ($[0] === "found") {
-
+                            const $2 = $[1]
                             const remark = (() => {
-                                const $2 = $[1]
                                 switch ($2.publishStatus[0]) {
                                     case "found": {
                                         const $3 = $2.publishStatus[1]
                                         return !$3.shaKeysEqual
-                                            ? `${red}!unpublished commits${reset}`
+                                            ? `${red}unpublished commits${reset}`
                                             : ``
                                     }
                                     case "missing": {
-                                        return `${red}!not published${reset}`
+                                        return `${red}not published${reset}`
                                     }
                                     case "unpublished": {
                                         return ""
                                     }
                                 }
                             })()
-                            console.log(`\t\t${partName} ${remark}`)
-                            $[1].local.dependencies.forEach(($, depName) => {
+                            
+                            console.log(`\t\t${partName} ${remark} ${$2.publishData !== null && $2.publishData.name !== projectName ? "INVALID NAME" : ""}`)
+                            $[1].deps.dependencies.forEach(($, depName) => {
 
-                                depOverview.referencedProjects.find(
+                                statusOverview.referencedProjects.find(
                                     depName,
                                     ($$) => {
-                                        console.log(`\t\t\t${depName} (${!versionIsEqual($, $$.latestVersion)
-                                                ? `${red}${$} <> ${$$.latestVersion}${reset}`
-                                                : `${green}${$}${reset}`
+                                        console.log(`\t\t\t${depName} (${!$.isEqual
+                                            ? `${red}${$.versionX} <> ${$$.latestVersion}${reset}`
+                                            : `${green}${$.versionX}${reset}`
                                             })`)
                                     },
                                     () => {
@@ -102,15 +70,38 @@ pr.runProgram(
 
                 //dev dependencies
                 console.log(`dev dependencies`)
-                depOverview.projects.forEach(($, projectName) => {
+                statusOverview.projects.forEach(($, projectName) => {
                     console.log(`\t${projectName}`)
 
-                    $.parts.forEach(($, partName) => {
+                    $.project.parts.forEach(($, partName) => {
                         if ($[0] === "found") {
                             console.log(`\t\t${partName}`)
 
-                            $[1].local.devDependencies.forEach(($, depName) => {
+                            $[1].deps.devDependencies.forEach(($, depName) => {
                                 console.log(`\t\t\t${depName} (${$})`)
+                            })
+                        }
+                    })
+                })
+
+                //outdated deps
+                console.log("")
+                console.log("outdated:")
+                statusOverview.projects.forEach(($, projectName) => {
+                    $.project.parts.forEach(($, partName) => {
+                        if ($[0] === "found") {
+                            $[1].deps.dependencies.forEach(($, depName) => {
+                                statusOverview.referencedProjects.find(
+                                    depName,
+                                    ($$) => {
+                                        if (!$.isEqual) {
+                                            console.log(`${projectName}>${depName}: ${$$.latestVersion} <> ${$.versionX}`)
+                                        }
+                                    },
+                                    () => {
+                                        throw new Error("!!!!!")
+                                    }
+                                )
                             })
                         }
                     })
@@ -118,19 +109,20 @@ pr.runProgram(
 
 
 
+
                 //reversed dependencies
                 console.log(``)
                 console.log(`reversed dependencies`)
-                depOverview.referencedProjects.forEach(($, refProjectName) => {
+                statusOverview.referencedProjects.forEach(($, refProjectName) => {
                     const lv = $.latestVersion
                     console.log(`\t${refProjectName} (${$.latestVersion})`)
-                    depOverview.projects.forEach(($, projectName) => {
+                    statusOverview.projects.forEach(($, projectName) => {
 
-                        $.parts.forEach(($, partName) => {
+                        $.project.parts.forEach(($, partName) => {
                             if ($[0] === "found") {
-                                $[1].local.dependencies.forEach(($, depName) => {
+                                $[1].deps.dependencies.forEach(($, depName) => {
                                     if (depName === refProjectName) {
-                                        console.log(`\t\t\t${projectName} (${partName}, (${!versionIsEqual($, lv) ? red : green}${$}${reset})`)
+                                        console.log(`\t\t\t${projectName} (${partName}, (${!$.isEqual ? red : green}${$.versionX}${reset})`)
                                     }
                                 })
                             }
@@ -142,15 +134,15 @@ pr.runProgram(
                 //digraph
                 console.log(``)
                 console.log(`digraph G {`)
-                depOverview.projects.forEach(($, projectName) => {
+                statusOverview.projects.forEach(($, projectName) => {
                     console.log(`\t"${projectName}"`)
                 })
                 console.log(``)
-                depOverview.projects.forEach(($, projectName) => {
-                    $.parts.forEach(($, partName) => {
+                statusOverview.projects.forEach(($, projectName) => {
+                    $.project.parts.forEach(($, partName) => {
                         if (partName === "pub") {
                             if ($[0] === "found") {
-                                $[1].local.dependencies.forEach(($, depName) => {
+                                $[1].deps.dependencies.forEach(($, depName) => {
                                     console.log(`\t"${projectName}" -> "${depName}"`)
                                 })
                             }

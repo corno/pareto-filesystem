@@ -1,26 +1,22 @@
 import * as pr from "pareto-runtime"
 
-export type LocalPart = {
-    dependencies: pr.IReadonlyDictionary<string>
-    devDependencies: pr.IReadonlyDictionary<string>
-    publishData: null | {
-        version: string
-        name: string
-    }
-}
-
-export type LocalProject = {
-    gitHeadSha: string
-    gitClean: boolean
-    parts: pr.IReadonlyDictionary<null | LocalPart>
-}
-
 export type ReferencedProject = {
     latestVersion: string
 }
 
+export type Dependency = {
+    versionX: string
+    isEqual: boolean
+}
+
+export type Dependencies = {
+    allDepsInSync: boolean
+    dependencies: pr.IReadonlyDictionary<Dependency>
+    devDependencies: pr.IReadonlyDictionary<Dependency>
+}
+
 export type Part = {
-    publishStatus: 
+    publishStatus:
     | ["unpublished", {}]
     | ["missing", {}]
     | ["found", {
@@ -28,7 +24,13 @@ export type Part = {
         gitSha: string
         shaKeysEqual: boolean
     }]
-    local: LocalPart
+
+    publishData: null | {
+        version: string
+        name: string
+    }
+    deps: Dependencies
+    isClean: boolean
 }
 
 export type OptionalPart =
@@ -41,9 +43,14 @@ export type Project = {
     gitHeadSha: string
     gitClean: boolean
     parts: pr.IReadonlyDictionary<OptionalPart>
+    isClean: boolean
 }
 
-export type DependencyOverview = {
-    projects: pr.IReadonlyDictionary<Project>
+export type DependentProject = {
+    project: Project
+}
+
+export type ProjectStatusOverview = {
+    projects: pr.IReadonlyDictionary<DependentProject>
     referencedProjects: pr.IReadonlyDictionary<ReferencedProject>
 }
