@@ -135,7 +135,7 @@ pr.runProgram(
                 console.log(``)
                 console.log(`digraph G {`)
                 statusOverview.projects.forEach(($, projectName) => {
-                    console.log(`\t"${projectName}"`)
+                    console.log(`\t"${projectName}"${!$.project.isClean ? ` [ color="red" ]` : ""}`)
                 })
                 console.log(``)
                 statusOverview.projects.forEach(($, projectName) => {

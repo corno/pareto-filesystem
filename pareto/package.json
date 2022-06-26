@@ -1,8 +1,8 @@
 {
   "scripts": {
     "analysePackage": "./scripts/analysePackage.sh",
-    "analyseTypescript": "./scripts/analyseAllTypeScriptProjects.sh",
-    "test": "./scripts/buildAndTest.sh",
+    "analyseTypeScript": "./scripts/analyseAllTypeScriptProjects.sh",
+    "buildAndTest": "./scripts/buildAndTest.sh",
     "pubMin": "./scripts/publish.sh minor",
     "pubPatch": "./scripts/publish.sh patch",
     "update2latest": "./scripts/update2latest.sh",
@@ -10,8 +10,8 @@
     "update2latestAndPublishPath": "./scripts/update2latestAndPublish.sh patch"
   },
   "dependencies": {
-    "npm-check-updates": "^14.0.1",
+    "npm-check-updates": "^14.1.1",
     "npm-safe-install": "^1.1.0",
-    "pareto-ts-validator": "^0.9.0"
+    "pareto-ts-validator": "^0.10.0"
   }
 }

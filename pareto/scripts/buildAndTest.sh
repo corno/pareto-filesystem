@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 if [ -d "../dev" ]
 then
     "$(dirname "$0")"/buildDevPackage.sh && \

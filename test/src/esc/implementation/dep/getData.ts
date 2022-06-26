@@ -2,8 +2,8 @@ import * as pf from "../../../../../pub/dist"
 import * as pr from "pareto-runtime"
 import * as https from "https"
 import * as cp from "child_process"
-import { Dependencies, Dependency, ProjectStatusOverview, OptionalPart, Part, Project, ReferencedProject } from "./data"
-import { LocalPart, LocalProject } from "./data2"
+import { Dependencies, Dependency, ProjectStatusOverview, OptionalPart, Part, Project, ReferencedProject } from "./types"
+import { LocalPart, LocalProject } from "./types2"
 
 function topologicalSort<T>(
     dictionary: pr.IReadonlyDictionary<T>,
