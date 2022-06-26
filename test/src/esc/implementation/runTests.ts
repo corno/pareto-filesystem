@@ -15,8 +15,7 @@ export function runTests(
                     {
                         name: "My Test",
                     },
-                    {
-                        registerListener: ($i) => {
+                    ($i) => {
                             const testSet = $i
                             pf.wrapDirectory(
                                 {
@@ -196,12 +195,12 @@ export function runTests(
                                             condition: false,
                                         })
                                     },
-                                    onEnd: $i.done,
+                                    onEnd: () => $i.done({}),
                                 }
                             )
                         }
 
-                    }
+                    
                 )
             },
             log: pr.log,
