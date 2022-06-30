@@ -1,5 +1,5 @@
 
-import * as pf from "../../../../pub"
+import * as pf from "../../../../lib"
 import * as pt from "pareto-test"
 import * as pr from "pareto-runtime"
 

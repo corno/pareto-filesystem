@@ -18,5 +18,6 @@
   "version": "0.9.4",
   "dependencies": {
     "pareto-runtime": "^0.22.0"
-  }
+  },
+  "content-fingerprint": "10d6fadffd8d010b506c19b5851d5582ecfa2791"
 }
