@@ -5,5 +5,6 @@ then
     $dir/analyseTypeScriptProject.sh ../dev/tsconfig.json
 fi && \
 
-$dir/analyseTypeScriptProject.sh ../pub/tsconfig.json && \
+$dir/analyseTypeScriptProject.sh ../api/tsconfig.json && \
+$dir/analyseTypeScriptProject.sh ../lib/tsconfig.json && \
 $dir/analyseTypeScriptProject.sh ../test/tsconfig.json
