@@ -1,3 +1,4 @@
+import * as pl from "pareto-lang-lib"
 import * as pr from "pareto-runtime"
 
 import * as fs from "fs"
@@ -204,18 +205,18 @@ export function wrapDirectory(
                                     function createID(): string {
                                         switch (idStyle[0]) {
                                             case "absolute":
-                                                return pr.cc(idStyle[1], ($) => {
+                                                return pl.cc(idStyle[1], ($) => {
                                                     return pth.resolve(pth.join(path, dirent.name))
                                                 })
                                             case "name only":
-                                                return pr.cc(idStyle[1], ($) => {
+                                                return pl.cc(idStyle[1], ($) => {
                                                     return dirent.name
                                                 })
                                             case "relative from root":
-                                                return pr.cc(idStyle[1], ($) => {
+                                                return pl.cc(idStyle[1], ($) => {
                                                     return pth.relative(rootDir, pth.resolve(pth.join(path, dirent.name)))
                                                 })
-                                            default: return pr.au(idStyle[0])
+                                            default: return pl.au(idStyle[0])
                                         }
                                     }
                                     if ($.isBlockDevice()) {

@@ -17,7 +17,8 @@
   ],
   "version": "0.9.4",
   "dependencies": {
-    "pareto-runtime": "^0.22.0"
+    "pareto-lang-lib": "^0.7.0",
+    "pareto-runtime": "^0.23.0"
   },
-  "content-fingerprint": "10d6fadffd8d010b506c19b5851d5582ecfa2791"
+  "content-fingerprint": "73c0079395fc74ef87a0d0bc96ccc2e888548352"
 }
