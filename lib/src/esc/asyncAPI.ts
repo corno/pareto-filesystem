@@ -26,35 +26,7 @@ export function createDirNodeData(path: string, dirent: fs.Dirent): DirNodeData 
     }
 }
 
-export function createLeafFileReader<T>(
-    path: string[],
-    callback: (
-        data: string,
-    ) => T,
-    error: (
-        err: NodeJS.ErrnoException,
-    ) => T,
-): asyncAPI.IAsync<T> {
-    return {
-        execute: (cb) => {
-            fs.readFile(
-                pth.join(... path),
-                {
-                    encoding: "utf-8",
-                },
-                (err, data) => {
-                    if (err !== null) {
-                        cb(error(err))
-                    } else {
-                        cb(callback(data))
-                    }
-                }
-            )
-        },
-    }
-}
-
-export function createCompositeFileReader<T>(
+export function file<T>(
     path: string[],
     callback: (
         data: string,
@@ -82,41 +54,7 @@ export function createCompositeFileReader<T>(
     }
 }
 
-export function createLeafDirReader<T>(
-    path: string,
-    callback: (
-        data: DirNodeData,
-    ) => null | T,
-): asyncAPI.IAsync<asyncAPI.IDictionary<T>> {
-    return {
-        execute: (cb) => {
-            fs.readdir(
-                path,
-                {
-                    withFileTypes: true,
-                },
-                (err, files) => {
-                    if (err !== null) {
-                        cb(asyncLib.createDictionary({}))
-                    } else {
-                        let values: { [key: string]: T } = {}
-
-                        files.forEach(($) => {
-                            const res = callback(createDirNodeData(path, $))
-                            if (res !== null) {
-                                values[$.name] = res
-                            }
-                        })
-
-                        cb(asyncLib.createDictionary(values))
-                    }
-                }
-            )
-        }
-    }
-}
-
-export function createCompositeDirReader<T>(
+export function directory<T>(
     path: string,
     callback: (
         data: DirNodeData,
