@@ -1,7 +1,4 @@
 {
-  "devDependencies": {
-    "@types/node": "^18.0.0"
-  },
   "dependencies": {
     "pareto-runtime": "^0.23.0",
     "pareto-test-lib": "^0.12.0"
