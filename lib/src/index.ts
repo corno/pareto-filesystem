@@ -1,11 +1,10 @@
 
 import { API } from "./api"
-import { directory, file } from "./esc/asyncAPI"
+import { directory, file } from "./asyncAPI"
 import * as asyncAPI from "pareto-async-api"
 
 export * from "./esc"
 export * from "./interface"
-export * from "./modules/counter"
 
 
 export function init(

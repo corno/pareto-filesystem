@@ -22,5 +22,6 @@
     "pareto-lang-lib": "^0.7.0",
     "pareto-runtime": "^0.23.0"
   },
-  "content-fingerprint": "ae8e8c2e49bca1a82d7c505e49f575b9286d4a51"
+  "native": true,
+  "content-fingerprint": "a97fbe209e3b13c261d5ebf91f571cc7a82472dc"
 }
