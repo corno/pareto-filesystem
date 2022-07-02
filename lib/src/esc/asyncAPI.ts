@@ -47,46 +47,52 @@ export function file<T>(
     }
 }
 
-export function directory<T>(
-    path: string,
-    callback: (
-        data: DirNodeData,
-    ) => null | asyncAPI.IAsync<T>,
-): asyncAPI.IAsync<asyncAPI.IDictionary<T>> {
-    return {
-        execute: (cb) => {
-            fs.readdir(
-                path,
-                {
-                    withFileTypes: true,
-                },
-                (err, files) => {
-                    if (err !== null) {
-                        cb(asyncLib.createDictionary({}))
-                    } else {
-                        let values: { [key: string]: T } = {}
-                        asyncLib.createCounter(
-                            (counter) => {
-                                files.forEach(($) => {
-                                    const subAsync = callback(createDirNodeData(path, $))
-                                    if (subAsync !== null) {
-                                        counter.increment()
-                                        subAsync.execute(
-                                            (x) => {
-                                                values[$.name] = x
-                                                counter.decrement()
-                                            }
-                                        )
-                                    }
-                                })
-                            },
-                            () => {
-                                cb(asyncLib.createDictionary(values))
-                            }
-                        )
+export function directory(
+    asyncLib: asyncAPI.API,
+) {
+    function directory<T>(
+        path: string,
+        callback: (
+            data: DirNodeData,
+        ) => null | asyncAPI.IAsync<T>,
+    ): asyncAPI.IAsync<asyncAPI.IDictionary<T>> {
+        return {
+            execute: (cb) => {
+                fs.readdir(
+                    path,
+                    {
+                        withFileTypes: true,
+                    },
+                    (err, files) => {
+                        if (err !== null) {
+                            cb(asyncLib.createDictionary({}))
+                        } else {
+                            let values: { [key: string]: T } = {}
+                            asyncLib.createCounter(
+                                (counter) => {
+                                    files.forEach(($) => {
+                                        const subAsync = callback(createDirNodeData(path, $))
+                                        if (subAsync !== null) {
+                                            counter.increment()
+                                            subAsync.execute(
+                                                (x) => {
+                                                    values[$.name] = x
+                                                    counter.decrement()
+                                                }
+                                            )
+                                        }
+                                    })
+                                },
+                                () => {
+                                    cb(asyncLib.createDictionary(values))
+                                }
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
+    
+    return directory
 }

@@ -1,13 +1,12 @@
 
-import * as fs from "../../../../lib"
+import * as fsLib from "../../../../lib"
 import * as pt from "pareto-test-lib"
 import * as pl from "pareto-lang-lib"
 import * as pr from "pareto-runtime"
-import * as async from "pareto-async-lib"
+import * as asyncLib from "pareto-async-lib"
 import * as asyncAPI from "pareto-async-api"
-import { createDictionary } from "pareto-async-lib"
 
-pt.serializeTestResult
+const async = asyncLib.init()
 
 type TestNode =
     | ["test", {
@@ -43,21 +42,22 @@ function printTestNode($: TestNode, indentation: string) {
 export function runTests(
     testDataDir: string,
 ) {
+    const fs = fsLib.init(asyncLib.init())
     async.rewrite<TestNode, asyncAPI.IDictionary<TestNode>>(
         async.rawDictionary<TestNode>(
             {
                 "a": async.rewrite(
                     fs.directory(
                         testDataDir,
-                        ($) => async.literal($.type)
+                        ($) => async.value($.type)
                     ),
                     ($) => {
                         return ["set", {
-                            children: createDictionary({})
+                            children: async.createDictionary({})
                         }]
                     }
                 ),
-                "b": async.literal(["test", {
+                "b": async.value(["test", {
                     success: false,
                 }])
             }
@@ -75,7 +75,7 @@ export function runTests(
         testDataDir,
         ($) => {
             console.log($.name)
-            return async.literal(null)
+            return async.value(null)
         }
     ).execute(() => {
         //console.log("DONE")
@@ -89,7 +89,7 @@ export function runTests(
                     },
                     ($i) => {
                         const testSet = $i
-                        fs.wrapDirectory(
+                        fsLib.wrapDirectory(
                             {
                                 rootDirectory: testDataDir,
                             },
@@ -263,7 +263,7 @@ export function runTests(
                                 onError: ($) => {
 
                                     $i.testSet.assert({
-                                        testName: `unexpected error: ${fs.createFSErrorMessage($)}`,
+                                        testName: `unexpected error: ${fsLib.createFSErrorMessage($)}`,
                                         condition: false,
                                     })
                                 },
