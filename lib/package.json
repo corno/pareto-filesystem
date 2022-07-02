@@ -15,7 +15,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.12.0",
+  "version": "0.13.0",
   "dependencies": {
     "pareto-async-api": "^0.4.0",
     "pareto-async-lib": "^0.5.1",
