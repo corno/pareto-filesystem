@@ -3,16 +3,8 @@ import * as fs from "fs"
 import * as asyncAPI from "pareto-async-api"
 import * as asyncLib from "pareto-async-lib"
 import * as pth from "path"
+import { DirNodeData } from "../api"
 
-
-export type DirNodeData = {
-    name: string
-    path: string
-    type:
-    | ["directory", {}]
-    | ["file", {}]
-    | ["other", {}]
-}
 
 export function createDirNodeData(path: string, dirent: fs.Dirent): DirNodeData {
     return {
@@ -32,7 +24,7 @@ export function file<T>(
         data: string,
     ) => asyncAPI.IAsync<T>,
     error: (
-        err: NodeJS.ErrnoException,
+        err: null,
     ) => asyncAPI.IAsync<T>,
 ): asyncAPI.IAsync<T> {
     return {
@@ -44,7 +36,8 @@ export function file<T>(
                 },
                 (err, data) => {
                     if (err !== null) {
-                        error(err).execute(cb)
+                        console.error("FIX ERROR DATA")
+                        error(null).execute(cb)
                     } else {
                         (callback(data)).execute(cb)
                     }

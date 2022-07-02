@@ -1,0 +1,26 @@
+{
+  "author": "Corno",
+  "dependencies": {
+    "pareto-async-api": "^0.4.0"
+  },
+  "files": [
+    "dist",
+    "data"
+  ],
+  "keywords": [],
+  "main": "./dist/index.js",
+  "bugs": {
+    "url": "https://github.com/corno/astn/issues"
+  },
+  "description": "",
+  "homepage": "https://github.com/corno/astn#readme",
+  "license": "ISC",
+  "name": "pareto-filesystem-api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/corno/pareto-filesystem.git"
+  },
+  "types": "dist/index.d.ts",
+  "version": "0.0.4",
+  "content-fingerprint": "3fe2186c1179ed4b30ffa1917e95a10c3c426c22"
+}

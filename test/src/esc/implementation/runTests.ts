@@ -1,11 +1,13 @@
 
 import * as fs from "../../../../lib"
 import * as pt from "pareto-test-lib"
+import * as pl from "pareto-lang-lib"
 import * as pr from "pareto-runtime"
 import * as async from "pareto-async-lib"
 import * as asyncAPI from "pareto-async-api"
 import { createDictionary } from "pareto-async-lib"
 
+pt.serializeTestResult
 
 type TestNode =
     | ["test", {
@@ -16,31 +18,58 @@ type TestNode =
     }]
 
 
+function printTestNode($: TestNode, indentation: string) {
+    switch ($[0]) {
+        case "set":
+            pl.cc($[1], ($) => {
+                console.log(`SET`)
+                $.children.forEach((v, k) => {
+                    console.log(`${indentation}${k}`)
+                    printTestNode(v, `${indentation}    `)
+                })
+            })
+            break
+        case "test":
+            pl.cc($[1], ($) => {
+                console.log(`TEST`)
+
+            })
+            break
+        default: pl.au($[0])
+    }
+}
+
+
 export function runTests(
     testDataDir: string,
 ) {
-
-    async.rawDictionary<TestNode>(
-        {
-            "a": async.rewrite(
-                fs.directory(
-                    testDataDir,
-                    ($) => async.literal($.type)
+    async.rewrite<TestNode, asyncAPI.IDictionary<TestNode>>(
+        async.rawDictionary<TestNode>(
+            {
+                "a": async.rewrite(
+                    fs.directory(
+                        testDataDir,
+                        ($) => async.literal($.type)
+                    ),
+                    ($) => {
+                        return ["set", {
+                            children: createDictionary({})
+                        }]
+                    }
                 ),
-                ($) => {
-                    return ["set", {
-                        children: createDictionary({})
-                    }]
-                }
-            ),
-            "b": async.literal(["test", {
-                success: false,
-            }])
+                "b": async.literal(["test", {
+                    success: false,
+                }])
+            }
+        ),
+        ($) => {
+            return ["set", {
+                children: $
+            }]
         }
-    ).execute(($) => {
-        $.forEach((v, k) => {
 
-        })
+    ).execute(($) => {
+        printTestNode($, ``)
     })
     fs.directory(
         testDataDir,
