@@ -1,22 +1,9 @@
 
 import * as fs from "fs"
 import * as asyncAPI from "pareto-async-api"
-import * as asyncLib from "pareto-async-lib"
 import * as pth from "path"
 import { DirNodeData } from "./api"
-
-
-export function createDirNodeData(path: string, dirent: fs.Dirent): DirNodeData {
-    return {
-        name: dirent.name,
-        path: `${path}/${dirent.name}`,
-        type: dirent.isDirectory()
-            ? ["directory", {}]
-            : dirent.isFile()
-                ? ["file", {}] :
-                ["other", {}]
-    }
-}
+import { createDirNodeData } from "./createDirNodeData"
 
 export function file<T>(
     path: string[],
