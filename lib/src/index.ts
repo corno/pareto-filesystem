@@ -1,5 +1,5 @@
 
-import { API } from "./api"
+import { API } from "pareto-filesystem-api"
 import { directory, file } from "./asyncAPI"
 import * as asyncAPI from "pareto-async-api"
 

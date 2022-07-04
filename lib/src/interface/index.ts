@@ -1,7 +1,5 @@
 export * from "./types/FSError"
 export * from "./types/MkDirError"
-export * from "./types/ReadDirError"
-export * from "./types/ReadFileError"
 export * from "./types/UnlinkErrorType"
 export * from "./types/WriteFileErrorType"
 export * from "../esc/creators"

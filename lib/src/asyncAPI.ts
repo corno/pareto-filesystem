@@ -1,5 +1,6 @@
 
 import * as fs from "fs"
+import * as api from "pareto-filesystem-api"
 import * as asyncAPI from "pareto-async-api"
 import * as pth from "path"
 import { DirNodeData } from "./api"
@@ -11,8 +12,8 @@ export function file<T>(
         data: string,
     ) => asyncAPI.IAsync<T>,
     error: (
-        err: null,
-    ) => asyncAPI.IAsync<T>,
+        err: api.TReadFileError,
+    ) => null | asyncAPI.IAsync<T>,
 ): asyncAPI.IAsync<T> {
     return {
         execute: (cb) => {
@@ -22,11 +23,29 @@ export function file<T>(
                     encoding: "utf-8",
                 },
                 (err, data) => {
-                    if (err !== null) {
-                        console.error("FIX ERROR DATA")
-                        error(null).execute(cb)
-                    } else {
+                    if (err === null) {
                         (callback(data)).execute(cb)
+                    } else {
+                        const errCode = err.code
+                        const errMessage = err.message
+
+                        function createError(): api.TReadFileError {
+
+                            switch (errCode) {
+                                case "ENOENT":
+                                    return ["no entity", {}]
+                                case "EISDIR":
+                                    return ["is directory", {}]
+                                default: {
+                                    return ["other", { message: errMessage}]
+                                }
+                            }
+                        }
+                        const result = error(createError())
+                        if (result !== null) {
+                            result.execute(cb)
+                        }
+                        
                     }
                 }
             )
@@ -42,6 +61,7 @@ export function directory(
         callback: (
             data: DirNodeData,
         ) => null | asyncAPI.IAsync<T>,
+        error: (err: api.TReadDirError) => null | asyncAPI.IAsync<asyncAPI.IDictionary<T>>,
     ): asyncAPI.IAsync<asyncAPI.IDictionary<T>> {
         return {
             execute: (cb) => {
@@ -52,7 +72,24 @@ export function directory(
                     },
                     (err, files) => {
                         if (err !== null) {
-                            cb(asyncLib.createDictionary({}))
+                            const errCode = err.code
+                            const errMessage = err.message
+                            function createError(): api.TReadDirError {
+    
+                                switch (errCode) {
+                                    case "ENOENT":
+                                        return ["no entity", {}]
+                                    case "ENOTDIR":
+                                        return ["is not directory", {}]
+                                    default: {
+                                        return ["other", { message: errMessage}]
+                                    }
+                                }
+                            }
+                            const res = error(createError())
+                            if (res !== null) {
+                                res.execute(cb)
+                            }
                         } else {
                             let values: { [key: string]: T } = {}
                             asyncLib.createCounter(

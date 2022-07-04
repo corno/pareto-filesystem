@@ -3,6 +3,7 @@ import * as fsLib from "../../../../lib"
 import * as pt from "pareto-test-lib"
 import * as pl from "pareto-lang-lib"
 import * as pr from "pareto-runtime"
+import * as diff from "pareto-diff-lib"
 import * as asyncLib from "pareto-async-lib"
 import * as asyncAPI from "pareto-async-api"
 
@@ -51,7 +52,10 @@ export function runTests(
                 "a": async.rewrite(
                     fs.directory(
                         testDataDir,
-                        ($) => async.value($.type)
+                        ($) => async.value($.type),
+                        (err) => {
+                            return null
+                        }
                     ),
                     ($) => {
                         return ["set", {
@@ -78,7 +82,10 @@ export function runTests(
         ($) => {
             //console.log($.name)
             return async.value(null)
-        }
+        },
+        (err) => {
+            return null
+        },
     ).execute(() => {
         //console.log("DONE")
     })
@@ -278,6 +285,7 @@ export function runTests(
                 )
             },
             log: pr.log,
-        }
+        },
+        diff.init(),
     )
 }

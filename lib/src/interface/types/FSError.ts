@@ -1,6 +1,6 @@
 import { TMkDirErrorType } from "./MkDirError";
-import { TReadDirError } from "./ReadDirError";
-import { TReadFileError } from "./ReadFileError";
+import { TReadDirError } from "pareto-filesystem-api";
+import { TReadFileError } from "pareto-filesystem-api";
 import { TUnlinkErrorType } from "./UnlinkErrorType";
 import { TRmDirError } from "./RmDirError";
 import { TWriteFileErrorType } from "./WriteFileErrorType";
