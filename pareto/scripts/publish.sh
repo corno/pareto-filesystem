@@ -26,7 +26,7 @@ git add .. && \
 git commit -m "version bumped to $newVersion" && \
 
 #create a tag
-git tag -a "$2:$newVersion" -m "$2:$newVersion" && \
+git tag -a "$2-$newVersion" -m "$2:$newVersion" && \
 git push && \
 
 #publish
