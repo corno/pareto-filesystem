@@ -23,7 +23,7 @@ popd && \
 
 #commit package.json with new version number
 git add .. && \
-git commit -m "version bumped to $newVersion" && \
+git commit -m "$2 version bumped to $newVersion" && \
 
 #create a tag
 git tag -a "$2-$newVersion" -m "$2:$newVersion" && \

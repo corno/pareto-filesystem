@@ -1,7 +1,7 @@
 {
   "author": "Corno",
   "dependencies": {
-    "pareto-async-api": "^0.5.0"
+    "pareto-async-api": "^0.6.0"
   },
   "files": [
     "dist",
@@ -22,5 +22,5 @@
   },
   "types": "dist/index.d.ts",
   "version": "0.4.0",
-  "content-fingerprint": "9daeeff147b69ab274eb03f81792ac39011b8919"
+  "content-fingerprint": "4f0330fca58632f2f4aec6e616061d75b6fab7b1"
 }
