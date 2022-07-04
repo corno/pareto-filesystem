@@ -1,3 +1,4 @@
+import * as pa from "pareto-lang-api"
 import * as asyncAPI from "pareto-async-api"
 
 export type File = <T>(
@@ -25,7 +26,7 @@ export type Directory = <T>(
     callback: (
         data: DirNodeData,
     ) => null | asyncAPI.IAsync<T>,
-) => asyncAPI.IAsync<asyncAPI.IDictionary<T>> 
+) => asyncAPI.IAsync<pa.IReadonlyDictionary<T>> 
 
 export type API = {
     file: File,

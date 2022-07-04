@@ -1,3 +1,4 @@
+import * as pa from "pareto-lang-api"
 import * as asyncAPI from "pareto-async-api"
 import { TReadDirError } from "./types/ReadDirError"
 import { TReadFileError } from "./types/ReadFileError"
@@ -35,8 +36,8 @@ export type Directory = <T>(
      */
     error: (
         err: TReadDirError,
-    ) => null | asyncAPI.IAsync<asyncAPI.IDictionary<T>>,
-) => asyncAPI.IAsync<asyncAPI.IDictionary<T>>
+    ) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
+) => asyncAPI.IAsync<pa.IReadonlyDictionary<T>>
 
 export type API = {
     file: File,

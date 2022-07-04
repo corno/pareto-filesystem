@@ -1,10 +1,13 @@
 
+import * as pa from "pareto-lang-api"
 import * as fs from "fs"
 import * as api from "pareto-filesystem-api"
 import * as asyncAPI from "pareto-async-api"
-import * as pth from "path"
+import * as pl from "pareto-lang-lib"
+import path, * as pth from "path"
 import { DirNodeData } from "./api"
 import { createDirNodeData } from "./createDirNodeData"
+import { createCounterImp } from "./esc/createCounter"
 
 export function file<T>(
     path: string[],
@@ -54,15 +57,14 @@ export function file<T>(
 }
 
 export function directory(
-    asyncLib: asyncAPI.API,
 ) {
     function directory<T>(
         path: string,
         callback: (
             data: DirNodeData,
         ) => null | asyncAPI.IAsync<T>,
-        error: (err: api.TReadDirError) => null | asyncAPI.IAsync<asyncAPI.IDictionary<T>>,
-    ): asyncAPI.IAsync<asyncAPI.IDictionary<T>> {
+        error: (err: api.TReadDirError) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
+    ): asyncAPI.IAsync<pa.IReadonlyDictionary<T>> {
         return {
             execute: (cb) => {
                 fs.readdir(
@@ -92,7 +94,7 @@ export function directory(
                             }
                         } else {
                             let values: { [key: string]: T } = {}
-                            asyncLib.createCounter(
+                            createCounterImp(
                                 (counter) => {
                                     files.forEach(($) => {
                                         const subAsync = callback(createDirNodeData(path, $))
@@ -108,7 +110,7 @@ export function directory(
                                     })
                                 },
                                 () => {
-                                    cb(asyncLib.createDictionary(values))
+                                    cb(pl.createDictionary(values))
                                 }
                             )
                         }

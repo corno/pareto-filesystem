@@ -6,7 +6,7 @@ import * as pth from "path"
 import { TFSError } from "../../interface/types/FSError"
 import { IDirectory, INodeCallbacks, IReadFile, IWriteFile } from "../creators"
 import { TReadDirError } from "pareto-filesystem-api"
-import { createCounter } from "../../modules/counter/esc/createCounter"
+import { createCounterImp } from "../createCounter"
 
 export function wrapDirectory(
     $: {
@@ -18,7 +18,7 @@ export function wrapDirectory(
         onEnd: () => void,
     }
 ): void {
-    createCounter(
+    createCounterImp(
         (counter) => {
 
             const rootDir = $.rootDirectory
@@ -33,7 +33,7 @@ export function wrapDirectory(
                         callback: ($i: IDirectory) => void,
                     }
                 ) {
-                    counter.increment({})
+                    counter.increment()
                     fs.mkdir(
                         path,
                         { recursive: recursive },
@@ -65,7 +65,7 @@ export function wrapDirectory(
                                     pr.join([contextPath, path])
                                 ))
                             }
-                            counter.decrement({})
+                            counter.decrement()
                         }
                     )
                 }
@@ -73,7 +73,7 @@ export function wrapDirectory(
                     path: string,
                     $i: IReadFile,
                 ): void {
-                    counter.increment({})
+                    counter.increment()
                     fs.readFile(
                         path,
                         { encoding: "utf-8" },
@@ -108,7 +108,7 @@ export function wrapDirectory(
                                     }
                                 }
                             }
-                            counter.decrement({})
+                            counter.decrement()
                         }
                     )
                 }
@@ -124,7 +124,7 @@ export function wrapDirectory(
                     const path = pr.join([contextPath, $.filePath])
 
                     function wf() {
-                        counter.increment({})
+                        counter.increment()
                         fs.writeFile(
                             path,
                             $.data,
@@ -156,7 +156,7 @@ export function wrapDirectory(
 
                                     $i.onDone()
                                 }
-                                counter.decrement({})
+                                counter.decrement()
                             }
                         )
                     }
@@ -192,7 +192,7 @@ export function wrapDirectory(
                     const idStyle = $.idStyle
                     const path = $.fullPath
 
-                    counter.increment({})
+                    counter.increment()
                     fs.readdir(
                         path,
                         {
@@ -309,7 +309,7 @@ export function wrapDirectory(
                                     })()],
                                 })
                             }
-                            counter.decrement({})
+                            counter.decrement()
                         }
                     )
                 }
@@ -368,14 +368,14 @@ export function wrapDirectory(
                         )
                     },
                     readRecursively: ($, $i) => {
-                        createCounter(
+                        createCounterImp(
                             (recursiveCounter) => {
 
                                 const d2e = $.directoriesToExclude
                                 function recurse(
                                     path: string,
                                 ) {
-                                    recursiveCounter.increment({})
+                                    recursiveCounter.increment()
                                     readDirWithFileTypes(
                                         {
                                             fullPath: path,
@@ -400,7 +400,7 @@ export function wrapDirectory(
                                                     {
                                                         callbacks: $i.callbacks,
                                                         onEnd: () => {
-                                                            recursiveCounter.decrement({})
+                                                            recursiveCounter.decrement()
                                                         }
                                                     },
                                                 )
@@ -420,7 +420,7 @@ export function wrapDirectory(
                     rm: ($, $i) => {
                         const path = pr.join([contextPath, $.path])
                         const nonExistenceHandler = $i.onNotExists
-                        counter.increment({})
+                        counter.increment()
                         fs.rm(
                             path,
 
@@ -467,7 +467,7 @@ export function wrapDirectory(
                                 if ($i.onDone !== undefined) {
                                     $i.onDone()
                                 }
-                                counter.decrement({})
+                                counter.decrement()
                             }
                         )
                     },
@@ -477,7 +477,7 @@ export function wrapDirectory(
                     ) => {
                         const path = pr.join([contextPath, $.path])
                         const nonExistenceHandler = $i.onNotExists
-                        counter.increment({})
+                        counter.increment()
                         fs.unlink(
                             path,
                             (err) => {
@@ -516,16 +516,16 @@ export function wrapDirectory(
                                 if ($i.onDone !== undefined) {
                                     $i.onDone()
                                 }
-                                counter.decrement({})
+                                counter.decrement()
 
                             }
                         )
                     },
                     wrapAsync: ($i) => {
-                        counter.increment({})
+                        counter.increment()
                         $i.callback({
                             onDone: () => {
-                                counter.decrement({})
+                                counter.decrement()
                             }
                         })
                         
