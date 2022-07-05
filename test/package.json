@@ -4,7 +4,7 @@
     "pareto-async-lib": "^0.8.0",
     "pareto-diff-lib": "^0.2.0",
     "pareto-lang-lib": "^0.8.0",
-    "pareto-runtime": "^0.23.0",
+    "pareto-runtime": "^0.24.0",
     "pareto-test-lib": "^0.13.1"
   }
 }
