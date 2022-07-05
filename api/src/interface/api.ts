@@ -16,6 +16,7 @@ export type File = <T>(
      */
     error: (
         err: TReadFileError,
+        path: string,
     ) => null | asyncAPI.IAsync<T>,
 ) => asyncAPI.IAsync<T>
 
@@ -42,6 +43,7 @@ export type Directory = <T>(
      */
     error: (
         err: TReadDirError,
+        path: string,
     ) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
 ) => asyncAPI.IAsync<pa.IReadonlyDictionary<T>>
 
@@ -52,7 +54,8 @@ export type WriteFileAndWait = (
      * if the error callback returns a false, the execute of the IAsync will never be called
      */
     error: (
-        err: TWriteFileError
+        err: TWriteFileError,
+        path: string,
     ) => boolean,
 ) => asyncAPI.IAsync<null>
 
@@ -60,7 +63,8 @@ export type WriteFile = (
     path: Path,
     data: string,
     error: (
-        err: TWriteFileError
+        err: TWriteFileError,
+        path: string,
     ) => void
 ) => void
 
