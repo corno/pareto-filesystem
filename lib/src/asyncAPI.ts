@@ -4,8 +4,7 @@ import * as fs from "fs"
 import * as api from "pareto-filesystem-api"
 import * as asyncAPI from "pareto-async-api"
 import * as pl from "pareto-lang-lib"
-import path, * as pth from "path"
-import { DirNodeData } from "./api"
+import * as pth from "path"
 import { createDirNodeData } from "./createDirNodeData"
 import { createCounterImp } from "./esc/createCounter"
 
@@ -61,7 +60,7 @@ export function directory(
     function directory<T>(
         path: string,
         callback: (
-            data: DirNodeData,
+            data: api.DirNodeData,
         ) => null | asyncAPI.IAsync<T>,
         error: (err: api.TReadDirError) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
     ): asyncAPI.IAsync<pa.IReadonlyDictionary<T>> {

@@ -1,5 +1,5 @@
 import * as pl from "pareto-lang-lib"
-import { TFSError } from "../../interface";
+import { TFSError } from "../../interface/types/FSError"
 
 export function createFSErrorMessage(
     $: TFSError
