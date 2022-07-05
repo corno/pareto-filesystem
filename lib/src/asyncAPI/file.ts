@@ -11,12 +11,14 @@ export function file<T>(
     ) => asyncAPI.IAsync<T>,
     error: (
         err: api.TReadFileError,
+        path: string
     ) => null | asyncAPI.IAsync<T>,
 ): asyncAPI.IAsync<T> {
+    const joinedPath = pth.join(... path)
     return {
         execute: (cb) => {
             fs.readFile(
-                pth.join(... path),
+                joinedPath,
                 {
                     encoding: "utf-8",
                 },
@@ -39,7 +41,7 @@ export function file<T>(
                                 }
                             }
                         }
-                        const result = error(createError())
+                        const result = error(createError(), joinedPath)
                         if (result !== null) {
                             result.execute(cb)
                         }

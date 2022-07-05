@@ -17,12 +17,14 @@ export function writeFileAndWait(
     data: string,
     error: (
         err: TWriteFileError,
+        path: string
     ) => boolean,
 ): asyncAPI.IAsync<null> {
+    const joinedPath = pth.join(...path)
     return {
         execute: (cb) => {
             fs.writeFile(
-                pth.join(...path),
+                joinedPath,
                 data,
                 {
                     encoding: "utf-8",
@@ -42,7 +44,7 @@ export function writeFileAndWait(
                                 }
                             }
                         }
-                        const mustCall = error(createError())
+                        const mustCall = error(createError(), joinedPath)
                         if (mustCall) {
                             cb(null)
                         }

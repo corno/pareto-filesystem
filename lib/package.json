@@ -18,10 +18,10 @@
   "version": "0.18.0",
   "dependencies": {
     "pareto-async-api": "^0.6.0",
-    "pareto-filesystem-api": "^0.6.0",
+    "pareto-filesystem-api": "^0.7.0",
     "pareto-lang-lib": "^0.8.0",
     "pareto-runtime": "^0.24.0"
   },
   "native": true,
-  "content-fingerprint": "dea61b107d4019173eba2b5e3da58c0c8f8ac838"
+  "content-fingerprint": "419b60b92cff39dff1f8f6254f97d0d22458b242"
 }

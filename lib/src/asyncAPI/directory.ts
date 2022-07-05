@@ -13,12 +13,16 @@ export function directory<T>(
     callback: (
         data: api.DirNodeData,
     ) => null | asyncAPI.IAsync<T>,
-    error: (err: api.TReadDirError) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
+    error: (
+        err: api.TReadDirError,
+        path: string,
+        ) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
 ): asyncAPI.IAsync<pa.IReadonlyDictionary<T>> {
+    const joinedPath = pth.join(...path)
     return {
         execute: (cb) => {
             fs.readdir(
-                pth.join(...path),
+                joinedPath,
                 {
                     withFileTypes: true,
                 },
@@ -38,7 +42,7 @@ export function directory<T>(
                                 }
                             }
                         }
-                        const res = error(createError())
+                        const res = error(createError(), joinedPath)
                         if (res !== null) {
                             res.execute(cb)
                         }
@@ -47,7 +51,7 @@ export function directory<T>(
                         createCounterImp(
                             (counter) => {
                                 files.forEach(($) => {
-                                    const subAsync = callback(createDirNodeData(pth.join(...path), $))
+                                    const subAsync = callback(createDirNodeData(joinedPath, $))
                                     if (subAsync !== null) {
                                         counter.increment()
                                         subAsync.execute(
