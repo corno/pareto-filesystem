@@ -3,6 +3,7 @@ import * as asyncAPI from "pareto-async-api"
 import { TReadDirError } from "./types/ReadDirError"
 import { TReadFileError } from "./types/ReadFileError"
 import { TWriteFileError } from "./types/WriteFileError"
+import { TUnlinkError } from "./types/UnlinkError"
 
 export type Path = string[]
 
@@ -68,9 +69,18 @@ export type WriteFile = (
     ) => void
 ) => void
 
+export type Unlink = (
+    path: Path,
+    error: (
+        err: TUnlinkError,
+        path: string,
+    ) => void
+) => void
+
 export type API = {
     file: File,
     directory: Directory
     writeFileAndWait: WriteFileAndWait
-    writeFile: WriteFile
+    writeFile: WriteFile,
+    unlink: Unlink,
 }
