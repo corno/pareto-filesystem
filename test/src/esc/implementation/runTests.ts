@@ -1,12 +1,12 @@
 
-import * as fsLib from "../../../../lib"
-import * as pt from "pareto-test-lib"
-import * as pl from "pareto-lang-lib"
+// import * as fsLib from "../../../../lib"
+// import * as pt from "pareto-test-lib"
+// import * as pl from "pareto-lang-lib"
 import * as pa from "pareto-lang-api"
-import * as pr from "pareto-runtime"
-import * as diff from "pareto-diff-lib"
-import * as asyncLib from "pareto-async-lib"
-import * as asyncAPI from "pareto-async-api"
+// import * as pr from "pareto-runtime"
+// import * as diff from "pareto-diff-lib"
+import * as asyncLib from "pareto-async-functions-lib"
+//import * as asyncAPI from "pareto-async-api"
 
 const async = asyncLib.init()
 
