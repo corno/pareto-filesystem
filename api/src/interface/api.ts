@@ -87,6 +87,7 @@ export type API = {
     file: File,
     directory: Directory
     writeFileAndWait: WriteFileAndWait
-    writeFile: WriteFile,
-    unlink: Unlink,
+    writeFile: WriteFile
+    unlink: Unlink
+    createHandledFilesystem: CreateHandledFilesystem
 }
