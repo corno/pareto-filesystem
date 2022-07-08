@@ -1,11 +1,11 @@
 import * as pa from "pareto-lang-api"
 import * as hfs from "pareto-handledfilesystem-api"
 import * as asyncAPI from "pareto-async-api"
-import { TReadDirError } from "./types/ReadDirError"
-import { TReadFileError } from "./types/ReadFileError"
-import { TWriteFileError } from "./types/WriteFileError"
-import { TUnlinkError } from "./types/UnlinkError"
-import { FileSystemError } from "./types/Error"
+import { TReadDirError } from "./interface/types/ReadDirError"
+import { TReadFileError } from "./interface/types/ReadFileError"
+import { TWriteFileError } from "./interface/types/WriteFileError"
+import { TUnlinkError } from "./interface/types/UnlinkError"
+import { FileSystemError } from "./interface/types/FileSystemError"
 
 export type Path = string[]
 
