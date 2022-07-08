@@ -1,9 +1,11 @@
 import * as pa from "pareto-lang-api"
+import * as hfs from "pareto-handledfilesystem-api"
 import * as asyncAPI from "pareto-async-api"
 import { TReadDirError } from "./types/ReadDirError"
 import { TReadFileError } from "./types/ReadFileError"
 import { TWriteFileError } from "./types/WriteFileError"
 import { TUnlinkError } from "./types/UnlinkError"
+import { FileSystemError } from "./types/Error"
 
 export type Path = string[]
 
@@ -76,6 +78,10 @@ export type Unlink = (
         path: string,
     ) => void
 ) => void
+
+export type CreateHandledFilesystem = (
+    onError: ($: FileSystemError) => void,
+) => hfs.IHandledFilesystem
 
 export type API = {
     file: File,

@@ -1,5 +1,5 @@
-export * from "./types/FSError"
+//export * from "./types/FSError"
 export * from "./types/MkDirError"
-export * from "./types/UnlinkErrorType"
-export * from "./types/WriteFileErrorType"
+// export * from "./types/UnlinkErrorType"
+// export * from "./types/WriteFileErrorType"
 export * from "../esc/creators"
