@@ -1,4 +1,4 @@
-import { TReadDirError, TReadFileError, TWriteFileError } from "pareto-filesystem-api"
+import * as api from "pareto-filesystem-api"
 import * as hfs from "pareto-handledfilesystem-api"
 import { directory } from "./asyncAPI/directory"
 import { file } from "./asyncAPI/file"
@@ -6,14 +6,8 @@ import { unlink } from "./asyncAPI/unlink"
 import { writeFile } from "./asyncAPI/writeFile"
 import { writeFileAndWait } from "./asyncAPI/writeFileAndWait"
 
-
-export type Error =
-    | ["file read", TReadFileError]
-    | ["file write", TWriteFileError]
-    | ["directory read", TReadDirError]
-
 export function createHandledFilesystem(
-    onError: ($: Error, path: string) => void,
+    onError: ($: api.FileSystemError) => void,
 ): hfs.IHandledFilesystem {
     return {
         file: (
@@ -24,7 +18,10 @@ export function createHandledFilesystem(
                 path,
                 callback,
                 (err, path) => {
-                    onError(["file read", err], path)
+                    onError({
+                        path: path,
+                        type: ["file read", err],
+                    })
                     return null
                 }
             )
@@ -41,7 +38,10 @@ export function createHandledFilesystem(
                     if (err[0] === "no entity") {
                         return notExists()
                     } else {
-                        onError(["file read", err], path)
+                        onError({
+                            type: ["file read", err],
+                            path: path,
+                        })
                         return null
                     }
                 }
@@ -55,7 +55,10 @@ export function createHandledFilesystem(
                 path,
                 callback,
                 (err, path) => {
-                    onError(["directory read", err], path)
+                    onError({
+                        type: ["directory read", err],
+                        path: path
+                    })
                     return null
                 }
             )
@@ -66,7 +69,10 @@ export function createHandledFilesystem(
                 path,
                 data,
                 (err, path) => {
-                    onError(["file write", err], path)
+                    onError({
+                        type: ["file write", err],
+                        path: path,
+                    })
                 }
             )
 

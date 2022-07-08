@@ -5,6 +5,7 @@ import { file } from "./asyncAPI/file"
 import { unlink } from "./asyncAPI/unlink"
 import { writeFile } from "./asyncAPI/writeFile"
 import { writeFileAndWait } from "./asyncAPI/writeFileAndWait"
+import { createHandledFilesystem } from "./createHandledFilesystem"
 
 export * from "./esc" //FIXME!!! REMOVE
 
@@ -16,5 +17,6 @@ export function init(
         writeFile: writeFile,
         writeFileAndWait: writeFileAndWait,
         unlink: unlink,
+        createHandledFilesystem: createHandledFilesystem,
     }
 }
