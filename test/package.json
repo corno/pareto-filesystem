@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "pareto-async-functions-lib": "^0.13.0",
+    "pareto-async-functions-lib": "^0.14.0",
     "pareto-diff-lib": "^0.3.0",
     "pareto-runtime": "^0.25.0",
     "pareto-test-lib": "^0.21.0"
