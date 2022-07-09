@@ -1,4 +1,4 @@
-import * as pl from "pareto-lang-lib"
+import * as pl from "pareto-lib-core"
 import { TFSError } from "../../interface/types/FSError"
 
 export function createFSErrorMessage(

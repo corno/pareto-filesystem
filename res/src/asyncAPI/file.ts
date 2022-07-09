@@ -1,7 +1,7 @@
 
 import * as fs from "fs"
 import * as api from "pareto-filesystem-api"
-import * as asyncAPI from "pareto-async-api"
+import * as asyncAPI from "pareto-api-core"
 import * as pth from "path"
 
 export function file<T>(

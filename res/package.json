@@ -17,10 +17,11 @@
   ],
   "version": "0.22.0",
   "dependencies": {
-    "pareto-filesystem-api": "^0.13.0",
-    "pareto-handledfilesystem-api": "^0.7.0",
+    "pareto-filesystem-api": "^0.15.0",
+    "pareto-handledfilesystem-api": "^0.8.0",
+    "pareto-lib-core": "^0.4.0",
     "pareto-runtime": "^0.24.0"
   },
   "native": true,
-  "content-fingerprint": "255db7363713788b93fe436a3859af5c0ab3c34d"
+  "content-fingerprint": "4cfb46253615639c4a0d4548b491d4466ab5bae1"
 }
