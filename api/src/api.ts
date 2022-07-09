@@ -1,6 +1,5 @@
-import * as pa from "pareto-lang-api"
+import * as pa from "pareto-api-core"
 import * as hfs from "pareto-handledfilesystem-api"
-import * as asyncAPI from "pareto-async-api"
 import { TReadDirError } from "./interface/types/ReadDirError"
 import { TReadFileError } from "./interface/types/ReadFileError"
 import { TWriteFileError } from "./interface/types/WriteFileError"
@@ -13,15 +12,15 @@ export type File = <T>(
     path: Path,
     callback: (
         data: string,
-    ) => asyncAPI.IAsync<T>,
+    ) => pa.IAsync<T>,
     /**
      * if the error callback returns a null, the execute of the IAsync will never be called
      */
     error: (
         err: TReadFileError,
         path: string,
-    ) => null | asyncAPI.IAsync<T>,
-) => asyncAPI.IAsync<T>
+    ) => null | pa.IAsync<T>,
+) => pa.IAsync<T>
 
 
 export type DirNodeData = {
@@ -40,15 +39,15 @@ export type Directory = <T>(
      */
     callback: (
         data: DirNodeData,
-    ) => null | asyncAPI.IAsync<T>,
+    ) => null | pa.IAsync<T>,
     /**
      * if the error callback returns a null, the execute of the IAsync will never be called
      */
     error: (
         err: TReadDirError,
         path: string,
-    ) => null | asyncAPI.IAsync<pa.IReadonlyDictionary<T>>,
-) => asyncAPI.IAsync<pa.IReadonlyDictionary<T>>
+    ) => null | pa.IAsync<pa.IReadonlyDictionary<T>>,
+) => pa.IAsync<pa.IReadonlyDictionary<T>>
 
 export type WriteFileAndWait = (
     path: Path,
@@ -60,7 +59,7 @@ export type WriteFileAndWait = (
         err: TWriteFileError,
         path: string,
     ) => boolean,
-) => asyncAPI.IAsync<null>
+) => pa.IAsync<null>
 
 export type WriteFile = (
     path: Path,
