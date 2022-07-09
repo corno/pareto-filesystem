@@ -20,8 +20,8 @@
     "pareto-filesystem-api": "^0.15.0",
     "pareto-handledfilesystem-api": "^0.8.0",
     "pareto-lib-core": "^0.5.0",
-    "pareto-runtime": "^0.24.0"
+    "pareto-runtime": "^0.25.0"
   },
   "native": true,
-  "content-fingerprint": "82b2c781b2ea509f6f41a917e5744bfa481236e6"
+  "content-fingerprint": "6ed46f08007bdb90f76292feb23a494755b99143"
 }

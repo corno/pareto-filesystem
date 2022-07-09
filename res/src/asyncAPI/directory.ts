@@ -1,5 +1,5 @@
 
-import * as pa from "pareto-lang-api"
+import * as pa from "pareto-api-core"
 import * as fs from "fs"
 import * as pth from "path"
 import * as api from "pareto-filesystem-api"
