@@ -2,7 +2,7 @@
 // import * as fsLib from "../../../../lib"
 // import * as pt from "pareto-test-lib"
 // import * as pl from "pareto-lang-lib"
-import * as pa from "pareto-lang-api"
+import * as pa from "pareto-api-core"
 // import * as pr from "pareto-runtime"
 // import * as diff from "pareto-diff-lib"
 import * as asyncLib from "pareto-async-functions-lib"
