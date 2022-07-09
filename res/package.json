@@ -6,7 +6,7 @@
   "description": "filesystem functions for pareto",
   "license": "ISC",
   "main": "dist/index.js",
-  "name": "pareto-filesystem-lib",
+  "name": "pareto-filesystem-res",
   "repository": {
     "type": "git",
     "url": "https://github.com/corno/pareto-filesystem.git"
@@ -22,5 +22,5 @@
     "pareto-runtime": "^0.24.0"
   },
   "native": true,
-  "content-fingerprint": "b94de12a332636adae528c639084caeba7ffe28b"
+  "content-fingerprint": "255db7363713788b93fe436a3859af5c0ab3c34d"
 }
