@@ -15,7 +15,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.24.0",
+  "version": "0.25.0",
   "dependencies": {
     "pareto-filesystem-api": "^0.15.0",
     "pareto-handledfilesystem-api": "^0.8.0",
