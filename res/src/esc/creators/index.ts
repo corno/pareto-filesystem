@@ -1,4 +1,8 @@
-import * as pr from "pareto-runtime"
+export type IStreamConsumer<Data, End> = {
+    onData: (data: Data) => void
+    onEnd: (end: End) => void
+}
+
 export type IFile = {
     readonly "read": (
         $i: IReadFile,
@@ -62,7 +66,7 @@ export type IDirectory = {
             readonly "createMissingDirectories": boolean,
         },
         $i: {
-            readonly "consumer": ($i: pr.IStreamConsumer<string, null>) => void,
+            readonly "consumer": ($i: IStreamConsumer<string, null>) => void,
             readonly "onSuccess"?: () => void
             readonly "onDone"?: () => void
         }

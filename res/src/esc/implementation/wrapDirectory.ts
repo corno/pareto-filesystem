@@ -1,5 +1,4 @@
 import * as pl from "pareto-lib-core"
-import * as pr from "pareto-runtime"
 
 import * as fs from "fs"
 import * as pth from "path"
@@ -62,7 +61,7 @@ export function wrapDirectory(
                                 }
                             } else {
                                 $i.callback(createDirectory(
-                                    pr.join([contextPath, path])
+                                    pth.join(contextPath, path)
                                 ))
                             }
                             counter.decrement()
@@ -121,7 +120,7 @@ export function wrapDirectory(
                     $i: IWriteFile
                 ) {
 
-                    const path = pr.join([contextPath, $.filePath])
+                    const path = pth.join(contextPath, $.filePath)
 
                     function wf() {
                         counter.increment()
@@ -241,7 +240,7 @@ export function wrapDirectory(
                                                 {
                                                     id: createID(),
                                                 },
-                                                createDirectory(pr.join([path, $.name]))
+                                                createDirectory(pth.join(path, $.name))
                                             )
                                         }
                                     } else if ($.isFIFO()) {
@@ -261,7 +260,7 @@ export function wrapDirectory(
                                                 {
                                                     read: ($i) => {
                                                         readFile(
-                                                            pr.join([path, $.name]),
+                                                            pth.join(path, $.name),
                                                             $i,
                                                         )
                                                     }
@@ -338,10 +337,10 @@ export function wrapDirectory(
                         )
                     },
                     getDirectory: ($, $i) => {
-                        $i.callback(createDirectory(pr.join([contextPath, $])))
+                        $i.callback(createDirectory(pth.join(contextPath, $)))
                     },
                     mkDir: ($, $i) => {
-                        const path = pr.join([contextPath, $.path])
+                        const path = pth.join(contextPath, $.path)
                         mkDir(
                             path,
                             $.recursive,
@@ -353,14 +352,14 @@ export function wrapDirectory(
                     readDirWithFileTypes: ($, $i) => {
                         readDirWithFileTypes(
                             {
-                                fullPath: pr.join([contextPath, $.path]),
+                                fullPath: pth.join(contextPath, $.path),
                                 idStyle: $.idStyle,
                             },
                             $i,
                         )
                     },
                     readFile: ($, $i) => {
-                        const path = pr.join([contextPath, $])
+                        const path = pth.join(contextPath, $)
 
                         readFile(
                             path,
@@ -418,7 +417,7 @@ export function wrapDirectory(
                         )
                     },
                     rm: ($, $i) => {
-                        const path = pr.join([contextPath, $.path])
+                        const path = pth.join(contextPath, $.path)
                         const nonExistenceHandler = $i.onNotExists
                         counter.increment()
                         fs.rm(
@@ -475,7 +474,7 @@ export function wrapDirectory(
                         $,
                         $i,
                     ) => {
-                        const path = pr.join([contextPath, $.path])
+                        const path = pth.join(contextPath, $.path)
                         const nonExistenceHandler = $i.onNotExists
                         counter.increment()
                         fs.unlink(
